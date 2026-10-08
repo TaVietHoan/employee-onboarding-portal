@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cổng Kê Khai Thông Tin Nhân Sự | Employee Onboarding Portal</title>
+  <!-- Google Fonts Optimized Loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       CSS VARIABLES & THEME ARCHITECTURE
+       ========================================================================== */
+    :root {
+      --primary: #0f4c81;
+      --primary-dark: #0a3258;
+      --primary-light: #e8f1f8;
+      --accent-gold: #f59e0b;
+      --accent-gold-light: #fef3c7;
+      --accent-rose: #f43f5e;
+      --accent-rose-light: #ffe4e6;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --bg-light: #f8fafc;
+      --bg-white: #ffffff;
+      --card-shadow: 0 10px 25px -5px rgba(15, 76, 129, 0.08), 0 8px 10px -6px rgba(15, 76, 129, 0.04);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --font-family: 'Be Vietnam Pro', 'Inter', Arial, sans-serif;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* HEADER */
+    .portal-header {
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .header-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-logo {
+      height: 40px;
+      width: auto;
+      max-width: 140px;
+      object-fit: contain;
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* PREMIUM VECTOR FLAG LANGUAGE SWITCHER */
+    .lang-switcher-card {
+      display: inline-flex;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 30px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+      position: relative;
+    }
+    .lang-btn-premium {
+      border: none;
+      background: transparent;
+      padding: 4px 12px;
+      border-radius: 25px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--text-muted);
+      transition: var(--transition);
+      z-index: 2;
+    }
+    .lang-btn-premium.active {
+      background: var(--bg-white);
+      color: var(--primary);
+      box-shadow: 0 3px 8px rgba(15, 76, 129, 0.18);
+    }
+    .flag-icon {
+      width: 20px;
+      height: 14px;
+      border-radius: 2px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+      object-fit: cover;
+      display: inline-block;
+    }
+
+    .step-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 12.5px;
+      border: 1px solid rgba(15, 76, 129, 0.15);
+      white-space: nowrap;
+    }
+
+    /* MAIN CONTAINER */
+    .portal-main {
+      flex: 1;
+      max-width: 1080px;
+      width: 100%;
+      margin: 20px auto;
+      padding: 0 16px;
+    }
+
+    /* PROGRESS TRACKER */
+    .progress-bar-container {
+      background: var(--bg-white);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+      display: none;
+    }
+    .steps-timeline {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+    .steps-timeline::before {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      right: 20px;
+      height: 3px;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+    .steps-timeline-progress {
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      height: 3px;
+      background: var(--primary);
+      z-index: 2;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+    .step-node {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      flex: 1;
+    }
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-white);
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: var(--transition);
+    }
+    .step-node.active .step-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+    .step-node.completed .step-circle {
+      border-color: var(--success);
+      background: var(--success);
+      color: #fff;
+    }
+    .step-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .step-node.active .step-label {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* CARD CONTAINER */
+    .form-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+    .form-step {
+      display: none;
+    }
+    .form-step.active {
+      display: block;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-header {
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--primary-light);
+    }
+    .step-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .step-description {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      margin-top: 4px;
+    }
+
+    /* FORM CONTROLS */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+    .col-span-2 {
+      grid-column: span 2;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-label {
+      font-weight: 600;
+      font-size: 13.5px;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .required-star {
+      color: var(--accent-rose);
+      font-weight: 700;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text-main);
+      background-color: var(--bg-white);
+      transition: var(--transition);
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    textarea.form-control {
+      min-height: 75px;
+      resize: vertical;
+    }
+    .form-helper {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* NOTICE BOXES */
+    .info-callout {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 18px;
+      font-size: 13px;
+      color: #1e3a8a;
+      line-height: 1.55;
+    }
+    .info-callout a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .physical-doc-notice {
+      background: #fffbeb;
+      border: 1.5px solid #f59e0b;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-top: 24px;
+      color: #92400e;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+    .physical-doc-notice .notice-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    /* DYNAMIC TABLES */
+    .dynamic-table-wrapper {
+      margin-top: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      background: #fff;
+    }
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .styled-table th {
+      background: #f1f5f9;
+      color: #475569;
+      padding: 9px 12px;
+      font-weight: 600;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    .styled-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .table-input {
+      width: 100%;
+      padding: 6px 9px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .btn-action-add {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px dashed var(--primary);
+      padding: 7px 15px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      transition: var(--transition);
+      font-size: 12.5px;
+    }
+    .btn-action-add:hover {
+      background: #dbeafe;
+    }
+    .btn-action-del {
+      background: var(--accent-rose-light);
+      color: var(--accent-rose);
+      border: none;
+      padding: 5px 9px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+      transition: var(--transition);
+    }
+    .btn-action-del:hover {
+      background: #fecdd3;
+    }
+
+    /* FILE UPLOAD CARDS */
+    .upload-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .upload-card {
+      border: 1.5px dashed var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      background: var(--bg-light);
+      transition: var(--transition);
+      position: relative;
+    }
+    .upload-card.has-file {
+      border-color: var(--success);
+      background: var(--success-light);
+      border-style: solid;
+    }
+    .upload-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .upload-card-title {
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .upload-req-tag {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .req-tag-mandatory {
+      background: var(--accent-rose-light);
+      color: var(--accent-rose);
+    }
+    .req-tag-optional {
+      background: #e2e8f0;
+      color: var(--text-muted);
+    }
+    .upload-file-status {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      word-break: break-all;
+    }
+    .file-input-hidden {
+      display: none;
+    }
+    .btn-choose-file {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      display: inline-block;
+      transition: var(--transition);
+    }
+    .btn-choose-file:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+
+    /* REVIEW STYLES */
+    .review-section {
+      margin-bottom: 18px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .review-header {
+      background: #f8fafc;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .review-header h4 {
+      font-size: 14.5px;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .btn-edit-jump {
+      background: none;
+      border: none;
+      color: var(--accent-gold);
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 12.5px;
+    }
+    .btn-edit-jump:hover {
+      text-decoration: underline;
+    }
+    .review-body {
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      font-size: 13px;
+    }
+    .review-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .review-label {
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 11.5px;
+    }
+    .review-value {
+      color: var(--text-main);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* FOOTER & BUTTONS */
+    .step-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .btn {
+      padding: 10px 22px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      box-shadow: 0 4px 12px rgba(15, 76, 129, 0.25);
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+    .btn-success:hover {
+      background: #059669;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* WELCOME SCREEN */
+    .welcome-card {
+      text-align: center;
+      padding: 36px 16px;
+    }
+    .welcome-logo {
+      height: 75px;
+      margin-bottom: 20px;
+      object-fit: contain;
+    }
+    .welcome-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    .welcome-subtitle {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 26px;
+    }
+    .welcome-badge-group {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    .welcome-badge {
+      background: var(--primary-light);
+      padding: 7px 15px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* SUCCESS SCREEN */
+    .success-card {
+      text-align: center;
+      padding: 45px 16px;
+    }
+    .success-icon-wrapper {
+      width: 70px;
+      height: 70px;
+      background: var(--success-light);
+      color: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      margin: 0 auto 20px;
+    }
+    .success-code-tag {
+      background: #f1f5f9;
+      border: 1px dashed var(--border-color);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      display: inline-block;
+      font-family: monospace;
+      font-weight: 700;
+      margin: 16px 0;
+      color: var(--primary);
+    }
+
+    /* MODAL BASE */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+    .modal-backdrop.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      max-width: 480px;
+      width: 90%;
+      padding: 26px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      transform: scale(0.92);
+      transition: var(--transition);
+    }
+    .modal-backdrop.show .modal-box {
+      transform: scale(1);
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+    .modal-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* DRAFT DIALOG SPECIAL STYLES */
+    .draft-badge-info {
+      background: #eff6ff;
+      border-left: 4px solid var(--primary);
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin: 12px 0 20px;
+      font-size: 13px;
+      color: #1e3a8a;
+    }
+
+    /* LOADING OVERLAY */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(5px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      display: none;
+    }
+    .spinner {
+      width: 46px;
+      height: 46px;
+      border: 4px solid var(--primary-light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 14px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .loading-subtext {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* TOAST */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      background: #1e293b;
+      color: #fff;
+      padding: 11px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15);
+      border-left: 4px solid var(--accent-gold);
+      animation: slideInRight 0.3s ease forwards;
+    }
+    .toast.toast-error {
+      border-left-color: var(--accent-rose);
+    }
+    .toast.toast-success {
+      border-left-color: var(--success);
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* FOOTER */
+    .portal-footer {
+      background: var(--bg-white);
+      border-top: 1px solid var(--border-color);
+      padding: 16px 20px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .col-span-2 {
+        grid-column: span 1;
+      }
+      .upload-cards-grid {
+        grid-template-columns: 1fr;
+      }
+      .review-body {
+        grid-template-columns: 1fr;
+      }
+      .step-label {
+        display: none;
+      }
+      .form-card {
+        padding: 20px 14px;
+      }
+      .step-actions {
+        flex-direction: column-reverse;
+        gap: 10px;
+      }
+      .step-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <div id="loadingMainText" class="loading-text">Đang kết nối hệ thống...</div>
+    <div id="loadingSubText" class="loading-subtext">Vui lòng không tắt hoặc tải lại trang</div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- CONFIRMATION MODAL -->
+  <div id="confirmModal" class="modal-backdrop">
+    <div class="modal-box">
+      <h3 class="modal-title" data-i18n="modal_confirm_title">Xác nhận gửi kê khai</h3>
+      <p class="modal-desc" data-i18n="modal_confirm_desc">Vui lòng đảm bảo các thông tin cá nhân và hồ sơ đính kèm là hoàn toàn chính xác. Bạn có chắc chắn muốn hoàn tất việc kê khai ngay bây giờ?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()" data-i18n="btn_back">Quay lại</button>
+        <button type="button" class="btn btn-primary" onclick="proceedFinalSubmit()" data-i18n="btn_confirm_submit">Xác nhận gửi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ELEGANT DRAFT DETECTED MODAL -->
+  <div id="draftModal" class="modal-backdrop">
+    <div class="modal-box">
+      <div style="font-size: 32px; margin-bottom: 8px;">📂</div>
+      <h3 class="modal-title" data-i18n="draft_modal_title">Tìm thấy bản nháp đang lưu</h3>
+      <p class="modal-desc" data-i18n="draft_modal_desc">Hệ thống ghi nhận bạn đã từng kê khai dở dang trước đó. Bạn có muốn tiếp tục bản kê khai này không?</p>
+      <div class="draft-badge-info" id="draftInfoDetails">
+        <strong>Họ tên:</strong> <span id="draftFullNameSpan">...</span><br>
+        <strong>Đã lưu tới:</strong> <span id="draftStepSpan">...</span>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="discardDraftAndStartNew()" data-i18n="btn_draft_discard">Làm mới từ đầu</button>
+        <button type="button" class="btn btn-primary" onclick="applyAndResumeDraft()" data-i18n="btn_draft_resume">Khôi phục & Tiếp tục</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="portal-header">
+    <div class="header-container">
+      <div class="header-brand">
+        <img id="headerLogo" src="" alt="Company Logo" class="brand-logo" onerror="this.style.display='none'">
+        <span class="brand-title" data-i18n="app_title">Kê Khai Thông Tin Nhân Sự</span>
+      </div>
+      
+      <div class="header-right">
+        <!-- PREMIUM VECTOR FLAG SWITCHER -->
+        <div class="lang-switcher-card">
+          <button type="button" class="lang-btn-premium active" id="btnLangVi" onclick="setLanguage('vi')">
+            <svg class="flag-icon" viewBox="0 0 640 480">
+              <rect width="640" height="480" fill="#da251d"/>
+              <polygon fill="#ff0" points="320,80 357,194 477,194 380,265 417,379 320,308 223,379 260,265 163,194 283,194"/>
+            </svg>
+            <span>Tiếng Việt</span>
+          </button>
+          <button type="button" class="lang-btn-premium" id="btnLangEn" onclick="setLanguage('en')">
+            <svg class="flag-icon" viewBox="0 0 640 480">
+              <clipPath id="uk-clip"><path d="M0,0 v480 h640 v-480 z"/></clipPath>
+              <clipPath id="uk-diag"><path d="M0,0 L640,480 M640,0 L0,480"/></clipPath>
+              <g clip-path="url(#uk-clip)">
+                <path d="M0,0 v480 h640 v-480 z" fill="#012169"/>
+                <path d="M0,0 L640,480 M640,0 L0,480" stroke="#fff" stroke-width="60"/>
+                <path d="M0,0 L640,480 M640,0 L0,480" stroke="#c8102e" stroke-width="40" clip-path="url(#uk-diag)"/>
+                <path d="M320,0 v480 M0,240 h640" stroke="#fff" stroke-width="100"/>
+                <path d="M320,0 v480 M0,240 h640" stroke="#c8102e" stroke-width="60"/>
+              </g>
+            </svg>
+            <span>English</span>
+          </button>
+        </div>
+
+        <div id="headerStepBadge" class="step-badge" style="display: none;">Bước 1/9</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <main class="portal-main">
+    
+    <!-- PROGRESS TRACKER -->
+    <div id="progressBarContainer" class="progress-bar-container">
+      <div class="steps-timeline">
+        <div id="timelineProgress" class="steps-timeline-progress"></div>
+        <div class="step-node" data-step="1"><div class="step-circle">1</div><div class="step-label" data-i18n="step_nav_1">Cá nhân</div></div>
+        <div class="step-node" data-step="2"><div class="step-circle">2</div><div class="step-label" data-i18n="step_nav_2">CCCD & Nơi ở</div></div>
+        <div class="step-node" data-step="3"><div class="step-circle">3</div><div class="step-label" data-i18n="step_nav_3">Công việc</div></div>
+        <div class="step-node" data-step="4"><div class="step-circle">4</div><div class="step-label" data-i18n="step_nav_4">Học vấn</div></div>
+        <div class="step-node" data-step="5"><div class="step-circle">5</div><div class="step-label" data-i18n="step_nav_5">Thuế & Bank</div></div>
+        <div class="step-node" data-step="6"><div class="step-circle">6</div><div class="step-label" data-i18n="step_nav_6">Gia đình</div></div>
+        <div class="step-node" data-step="7"><div class="step-circle">7</div><div class="step-label" data-i18n="step_nav_7">Hồ sơ</div></div>
+        <div class="step-node" data-step="8"><div class="step-circle">8</div><div class="step-label" data-i18n="step_nav_8">Kiểm tra</div></div>
+        <div class="step-node" data-step="9"><div class="step-circle">9</div><div class="step-label" data-i18n="step_nav_9">Cam kết</div></div>
+      </div>
+    </div>
+
+    <!-- MAIN CARD -->
+    <div class="form-card">
+      <form id="onboardingForm" onsubmit="return false;">
+
+        <!-- STEP 0: WELCOME -->
+        <div id="step-0" class="form-step active">
+          <div class="welcome-card">
+            <img id="welcomeLogo" src="" alt="Logo" class="welcome-logo" onerror="this.style.display='none'">
+            <h1 class="welcome-title" data-i18n="welcome_title">THÔNG TIN KÊ KHAI NHÂN SỰ</h1>
+            <p class="welcome-subtitle" data-i18n="welcome_subtitle">Chào mừng bạn gia nhập đội ngũ nhân sự! Vui lòng hoàn thành các bước kê khai thông tin lý lịch và đính kèm hồ sơ theo quy định để chúng tôi hoàn thiện thủ tục tiếp nhận.</p>
+            <div class="welcome-badge-group">
+              <div class="welcome-badge" data-i18n="welcome_badge_time">⏱ Thời gian hoàn tất: ~10 phút</div>
+              <div class="welcome-badge" data-i18n="welcome_badge_security">🔒 Bảo mật tuyệt đối</div>
+              <div class="welcome-badge" data-i18n="welcome_badge_prep">📁 Chuẩn bị sẵn CCCD, Ảnh thẻ & Bằng cấp</div>
+            </div>
+            <button type="button" class="btn btn-primary" style="padding: 13px 36px; font-size: 15px;" onclick="goToStep(1)">
+              <span data-i18n="btn_start">Bắt đầu kê khai</span> &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 1: THÔNG TIN CÁ NHÂN -->
+        <div id="step-1" class="form-step">
+          <div class="step-header">
+            <h2 class="step-title" data-i18n="step1_title">Bước 1: Thông tin cá nhân cơ bản</h2>
+            <div class="step-description" data-i18n="step1_desc">Vui lòng nhập thông tin cơ bản chính xác theo hộ tịch/giấy khai sinh.</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group col-span-2">
+              <label class="form-label"><span data-i18n="label_fullname">Họ và tên</span> <span class="required-star">*</span></label>
+              <input type="text" id="fullName" class="form-control" data-i18n-ph="ph_fullname" placeholder="Nhập họ và tên đầy đủ (VD: NGUYỄN VĂN A)" required>
+            </div>
+
+            <!-- Giới tính + Custom Option -->
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_gender">Giới tính</span> <span class="required-star">*</span></label>
+              <select id="gender" class="form-control" onchange="handleDropdownWithCustom(this, 'otherGenderGroup')" required>
+                <!-- Rendered dynamically -->
+              </select>
+            </div>
+            <div id="otherGenderGroup" class="form-group" style="display: none;">
+              <label class="form-label"><span data-i18n="label_other_gender">Vui lòng nhập giới tính</span> <span class="required-star">*</span></label>
+              <input type="text" id="otherGender" class="form-control" data-i18n-ph="ph_other_gender" placeholder="Nhập giới tính của bạn">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_dob">Ngày sinh</span> <span class="required-star">*</span></label>
+              <input type="date" id="dob" class="form-control" required>
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label"><span data-i18n="label_pob">Nơi sinh (Ghi đầy đủ theo Giấy khai sinh)</span> <span class="required-star">*</span></label>
+              <input type="text" id="pob" class="form-control" data-i18n-ph="ph_pob" placeholder="VD: Số 46, Phương Mai, Đống Đa, Hà Nội" required>
+            </div>
+
+            <!-- Tình trạng hôn nhân + Custom -->
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_marital">Tình trạng hôn nhân</span> <span class="required-star">*</span></label>
+              <select id="maritalStatus" class="form-control" onchange="handleDropdownWithCustom(this, 'otherMaritalGroup')" required>
+                <!-- Rendered dynamically -->
+              </select>
+            </div>
+            <div id="otherMaritalGroup" class="form-group" style="display: none;">
+              <label class="form-label"><span data-i18n="label_other_marital">Tình trạng hôn nhân khác</span> <span class="required-star">*</span></label>
+              <input type="text" id="otherMarital" class="form-control" data-i18n-ph="ph_other_marital" placeholder="Nhập tình trạng hôn nhân">
+            </div>
+
+            <!-- Quốc tịch + Custom -->
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_nationality">Quốc tịch</span> <span class="required-star">*</span></label>
+              <select id="nationality" class="form-control" onchange="handleDropdownWithCustom(this, 'otherNationalityGroup')" required>
+                <!-- Rendered dynamically -->
+              </select>
+            </div>
+            <div id="otherNationalityGroup" class="form-group" style="display: none;">
+              <label class="form-label"><span data-i18n="label_other_nationality">Vui lòng nhập quốc tịch</span> <span class="required-star">*</span></label>
+              <input type="text" id="otherNationality" class="form-control" data-i18n-ph="ph_other_nationality" placeholder="Nhập tên quốc gia">
+            </div>
+
+            <!-- Dân tộc + Custom -->
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_ethnicity">Dân tộc</span> <span class="required-star">*</span></label>
+              <select id="ethnicity" class="form-control" onchange="handleDropdownWithCustom(this, 'otherEthnicityGroup')" required>
+                <!-- Generated by JS -->
+              </select>
+            </div>
+            <div id="otherEthnicityGroup" class="form-group" style="display: none;">
+              <label class="form-label"><span data-i18n="label_other_ethnicity">Vui lòng nhập tên dân tộc</span> <span class="required-star">*</span></label>
+              <input type="text" id="otherEthnicity" class="form-control" data-i18n-ph="ph_other_ethnicity" placeholder="Nhập tên dân tộc">
+            </div>
+
+            <!-- Tôn giáo + Custom -->
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_religion">Tôn giáo</span> <span class="required-star">*</span></label>
+              <select id="religion" class="form-control" onchange="handleDropdownWithCustom(this, 'otherReligionGroup')" required>
+                <!-- Generated by JS -->
+              </select>
+            </div>
+            <div id="otherReligionGroup" class="form-group" style="display: none;">
+              <label class="form-label"><span data-i18n="label_other_religion">Vui lòng nhập tôn giáo</span> <span class="required-star">*</span></label>
+              <input type="text" id="otherReligion" class="form-control" data-i18n-ph="ph_other_religion" placeholder="Nhập tên tôn giáo">
+            </div>
+
+          </div>
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(0)">&larr; <span data-i18n="btn_home">Trang chủ</span></button>
+            <button type="button" class="btn btn-primary" onclick="validateAndGo(1, 2)"><span data-i18n="btn_continue">Tiếp tục</span> &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: CCCD & ĐỊA CHỈ -->
+        <div id="step-2" class="form-step">
+          <div class="step-header">
+            <h2 class="step-title" data-i18n="step2_title">Bước 2: Định danh, Nơi ở & Liên lạc</h2>
+            <div class="step-description" data-i18n="step2_desc">Các thông tin phục vụ ký kết hợp đồng và bảo hiểm xã hội.</div>
+          </div>
+          <div class="form-grid">
+            <!-- Loại thẻ định danh + Custom -->
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_id_type">Loại thẻ định danh</span> <span class="required-star">*</span></label>
+              <select id="idCardType" class="form-control" onchange="handleDropdownWithCustom(this, 'otherIdCardTypeGroup')" required>
+                <!-- Rendered dynamically -->
+              </select>
+            </div>
+            <div id="otherIdCardTypeGroup" class="form-group" style="display: none;">
+              <label class="form-label"><span data-i18n="label_other_id_type">Loại thẻ khác</span> <span class="required-star">*</span></label>
+              <input type="text" id="otherIdCardType" class="form-control" data-i18n-ph="ph_other_id_type" placeholder="VD: Hộ chiếu / Thẻ tạm trú">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_id_number">Số thẻ định danh</span> <span class="required-star">*</span></label>
+              <input type="text" id="idNumber" class="form-control" data-i18n-ph="ph_id_number" placeholder="Nhập số CCCD/CMND" maxlength="20" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_id_issue_date">Ngày cấp thẻ</span> <span class="required-star">*</span></label>
+              <input type="date" id="idIssueDate" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_id_expiry_date">Ngày hết hạn</span> <span class="required-star">*</span></label>
+              <input type="date" id="idExpiryDate" class="form-control" required>
+            </div>
+
+            <!-- Nơi cấp thẻ + Custom -->
+            <div class="form-group col-span-2">
+              <label class="form-label"><span data-i18n="label_id_issue_place">Nơi cấp thẻ</span> <span class="required-star">*</span></label>
+              <select id="idIssuePlace" class="form-control" onchange="handleDropdownWithCustom(this, 'otherIdIssuePlaceGroup')" required>
+                <!-- Rendered dynamically -->
+              </select>
+            </div>
+            <div id="otherIdIssuePlaceGroup" class="form-group col-span-2" style="display: none;">
+              <label class="form-label"><span data-i18n="label_other_id_issue_place">Nhập cơ quan cấp thẻ khác</span> <span class="required-star">*</span></label>
+              <input type="text" id="otherIdIssuePlace" class="form-control" data-i18n-ph="ph_other_id_issue_place" placeholder="Nhập đầy đủ tên cơ quan cấp thẻ">
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label"><span data-i18n="label_perm_addr">Hộ khẩu thường trú</span> <span class="required-star">*</span></label>
+              <textarea id="permanentAddress" class="form-control" data-i18n-ph="ph_perm_addr" placeholder="Số nhà ..., đường/phố ..., thôn/xã/phường ..., quận/huyện ..., tỉnh/thành phố ..." required></textarea>
+              <div class="form-helper" data-i18n="helper_perm_addr">Ghi chi tiết theo thông tin trên VNEID</div>
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label"><span data-i18n="label_curr_addr">Nơi ở hiện tại</span> <span class="required-star">*</span></label>
+              <textarea id="currentAddress" class="form-control" data-i18n-ph="ph_curr_addr" placeholder="Ghi chi tiết địa chỉ nơi đang cư trú thực tế..." required></textarea>
+              <div class="form-helper" data-i18n="helper_curr_addr">Tương tự hộ khẩu thường trú, ghi rõ số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_phone">Số điện thoại liên lạc</span> <span class="required-star">*</span></label>
+              <input type="tel" id="phone" class="form-control" data-i18n-ph="ph_phone" placeholder="VD: 0912345678" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_email">Email cá nhân</span> <span class="required-star">*</span></label>
+              <input type="email" id="email" class="form-control" data-i18n-ph="ph_email" placeholder="VD: nguyenvana@gmail.com" required>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(1)">&larr; <span data-i18n="btn_back">Quay lại</span></button>
+            <button type="button" class="btn btn-primary" onclick="validateAndGo(2, 3)"><span data-i18n="btn_continue">Tiếp tục</span> &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: CÔNG VIỆC -->
+        <div id="step-3" class="form-step">
+          <div class="step-header">
+            <h2 class="step-title" data-i18n="step3_title">Bước 3: Thông tin công việc</h2>
+            <div class="step-description" data-i18n="step3_desc">Vui lòng chọn hình thức và thời gian làm việc đã thỏa thuận.</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_working_type">Hình thức làm việc</span> <span class="required-star">*</span></label>
+              <select id="workingType" class="form-control" onchange="onWorkingTypeChange(this.value)" required>
+                <!-- Rendered dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_working_time">Thời gian làm việc</span> <span class="required-star">*</span></label>
+              <select id="workingTime" class="form-control" onchange="updateUploadRequirements()" required>
+                <!-- Rendered dynamically -->
+              </select>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(2)">&larr; <span data-i18n="btn_back">Quay lại</span></button>
+            <button type="button" class="btn btn-primary" onclick="validateAndGo(3, 4)"><span data-i18n="btn_continue">Tiếp tục</span> &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: HỌC VẤN & KINH NGHIỆM -->
+        <div id="step-4" class="form-step">
+          <div class="step-header">
+            <h2 class="step-title" data-i18n="step4_title">Bước 4: Học vấn & Kinh nghiệm làm việc</h2>
+            <div class="step-description" data-i18n="step4_desc">Kê khai quá trình đào tạo và các đơn vị đã từng công tác.</div>
+          </div>
+          <div class="form-grid">
+            <!-- Trình độ học vấn + Custom -->
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_edu_level">Trình độ học vấn cao nhất</span> <span class="required-star">*</span></label>
+              <select id="educationLevel" class="form-control" onchange="handleDropdownWithCustom(this, 'otherEducationLevelGroup')" required>
+                <!-- Rendered dynamically -->
+              </select>
+            </div>
+            <div id="otherEducationLevelGroup" class="form-group" style="display: none;">
+              <label class="form-label"><span data-i18n="label_other_edu_level">Trình độ học vấn khác</span> <span class="required-star">*</span></label>
+              <input type="text" id="otherEducationLevel" class="form-control" data-i18n-ph="ph_other_edu_level" placeholder="Nhập trình độ đào tạo của bạn">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_school">Trường học / Cơ sở tốt nghiệp</span> <span class="required-star">*</span></label>
+              <input type="text" id="school" class="form-control" data-i18n-ph="ph_school" placeholder="VD: Đại học Sư phạm Hà Nội" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_major">Chuyên ngành</span> <span class="required-star">*</span></label>
+              <input type="text" id="major" class="form-control" data-i18n-ph="ph_major" placeholder="VD: Sư phạm Tiếng Anh" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="label_grad_year">Năm tốt nghiệp (yyyy)</span> <span class="required-star">*</span></label>
+              <input type="number" id="gradYear" class="form-control" data-i18n-ph="ph_grad_year" placeholder="VD: 2022" min="1950" max="2035" required>
+            </div>
+            
+            <!-- Dynamic Experience Table -->
+            <div class="form-group col-span-2" style="margin-top: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <label class="form-label" data-i18n="label_exp_summary">Tóm tắt kinh nghiệm làm việc</label>
+                <label style="font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                  <input type="checkbox" id="noExpCheckbox" onchange="toggleNoExperience(this.checked)">
+                  <span data-i18n="label_no_exp">Tôi chưa có kinh nghiệm làm việc</span>
+                </label>
+              </div>
+
+              <div id="experienceWrapper" class="dynamic-table-wrapper">
+                <table class="styled-table" id="experienceTable">
+                  <thead>
+                    <tr>
+                      <th style="width: 140px;" data-i18n="th_from">Từ tháng/năm</th>
+                      <th style="width: 140px;" data-i18n="th_to">Đến tháng/năm</th>
+                      <th data-i18n="th_company">Tên công ty</th>
+                      <th data-i18n="th_position">Chức danh</th>
+                      <th data-i18n="th_tasks">Nội dung công việc</th>
+                      <th style="width: 50px;" data-i18n="th_action">Xóa</th>
+                    </tr>
+                  </thead>
+                  <tbody id="experienceTableBody">
+                    <!-- Dynamic Rows -->
+                  </tbody>
+                </table>
+              </div>
+              <button type="button" id="btnAddExp" class="btn-action-add" onclick="addExperienceRow()">
+                + <span data-i18n="btn_add_exp">Thêm kinh nghiệm</span>
+              </button>
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label" data-i18n="label_edu_certs">Các chứng chỉ liên quan đến lĩnh vực Giáo dục</label>
+              <textarea id="eduCertificates" class="form-control" data-i18n-ph="ph_edu_certs" placeholder="VD: IELTS 7.5, TESOL 120h, Nghiệp vụ sư phạm... (Nếu không có ghi 'Không')"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="label_edu_exp_years">Số năm kinh nghiệm trong ngành GD</label>
+              <input type="number" id="eduExpYears" class="form-control" data-i18n-ph="ph_edu_exp_years" placeholder="VD: 2.5" step="0.5" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="label_living_abroad">Thời gian sống ở nước ngoài</label>
+              <input type="text" id="livingAbroad" class="form-control" data-i18n-ph="ph_living_abroad" placeholder="VD: 2 năm - Singapore (Nếu không có ghi 'Không')">
+            </div>
+          </div>
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(3)">&larr; <span data-i18n="btn_back">Quay lại</span></button>
+            <button type="button" class="btn btn-primary" onclick="validateAndGo(4, 5)"><span data-i18n="btn_continue">Tiếp tục</span> &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 5: THUẾ, BHXH, Y TẾ, NGÂN HÀNG, XE -->
+        <div id="step-5" class="form-step">
+          <div class="step-header">
+            <h2 class="step-title" data-i18n="step5_title">Bước 5: Thuế, BHXH & Tài khoản thanh toán</h2>
+            <div class="step-description" data-i18n="step5_desc">Kê khai thông tin phục vụ chi trả lương và chế độ phúc lợi.</div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group col-span-2">
+              <div class="info-callout" id="calloutTaxBox">
+                <!-- Injected via I18N -->
+              </div>
+              <label class="form-label"><span data-i18n="label_tax_id">Mã số thuế Thu nhập cá nhân</span> <span class="required-star">*</span></label>
+              <input type="text" id="taxId" class="form-control" data-i18n-ph="ph_tax_id" placeholder="Nhập MST hoặc điền 'Chưa có'" required>
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label"><span data-i18n="label_social_insurance">Số sổ Bảo hiểm Xã hội</span> <span class="required-star">*</span></label>
+              <input type="text" id="socialInsuranceId" class="form-control" data-i18n-ph="ph_social_insurance" placeholder="Nhập mã số BHXH hoặc điền 'Chưa có'" required>
+              <div class="form-helper" data-i18n="helper_social_insurance">Nếu chưa từng tham gia BHXH tại đơn vị nào, vui lòng điền "Chưa có".</div>
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label" data-i18n="label_health_place">Nơi đăng ký khám chữa bệnh ban đầu (dự kiến sau thử việc)</label>
+              <input type="text" id="healthCheckPlace" class="form-control" data-i18n-ph="ph_health_place" placeholder="VD: Bệnh viện Đa khoa Đống Đa">
+              <div class="form-helper">
+                <span data-i18n="helper_health_place">Tra cứu cơ sở y tế đủ điều kiện tiếp nhận tại:</span> 
+                <a href="https://www.blogbhxh.com/hanoi-kcb-noi-tinh-678" target="_blank" style="color: var(--primary); font-weight: 700;" data-i18n="link_health_kcb">Tham khảo danh sách nơi đăng ký KCB ban đầu</a>
+              </div>
+            </div>
+
+            <div class="form-group col-span-2">
+              <div class="info-callout" id="calloutBidvBox">
+                <!-- Injected via I18N -->
+              </div>
+              <label class="form-label" data-i18n="label_bidv_account">Tài khoản ngân hàng BIDV (Chi nhánh Thanh Xuân)</label>
+              <textarea id="bidvAccount" class="form-control" data-i18n-ph="ph_bidv_account" placeholder="VD: 1234567890 - NGUYEN VAN A - Chi nhánh THANH XUAN (hoặc 'Chưa có')"></textarea>
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label" data-i18n="label_other_bank">Tài khoản ngân hàng khác BIDV</label>
+              <textarea id="otherBank" class="form-control" data-i18n-ph="ph_other_bank" placeholder="VD: NGUYEN VAN A - VIETCOMBANK - 1234567890 - Chi nhánh Thăng Long (Nếu đã có BIDV điền 'Không')"></textarea>
+              <div class="form-helper" data-i18n="helper_other_bank">Bắt buộc ghi đủ thông tin: Chủ tài khoản - Ngân hàng - Số tài khoản - Chi nhánh nếu chưa có BIDV.</div>
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label" data-i18n="label_vehicle_info">Thông tin xe đăng ký gửi tại Công ty / Cơ sở trường</label>
+              <textarea id="vehicleInfo" class="form-control" data-i18n-ph="ph_vehicle_info" placeholder="Loại xe: Xe máy - Lead&#10;Màu: Trắng&#10;Biển số: 29L1 - 01232"></textarea>
+              <div class="form-helper" data-i18n="helper_vehicle_info">Nếu không sử dụng phương tiện cá nhân, vui lòng điền "Không".</div>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(4)">&larr; <span data-i18n="btn_back">Quay lại</span></button>
+            <button type="button" class="btn btn-primary" onclick="validateAndGo(5, 6)"><span data-i18n="btn_continue">Tiếp tục</span> &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 6: GIA ĐÌNH & NGƯỜI PHỤ THUỘC -->
+        <div id="step-6" class="form-step">
+          <div class="step-header">
+            <h2 class="step-title" data-i18n="step6_title">Bước 6: Thông tin Gia đình & Giảm trừ gia cảnh</h2>
+            <div class="step-description" data-i18n="step6_desc">Kê khai thân nhân và xác lập duy nhất 01 người liên lạc khẩn cấp.</div>
+          </div>
+          
+          <label class="form-label"><span data-i18n="label_family_table">Thông tin tất cả người thân trong gia đình (Bố, Mẹ, Vợ/Chồng, Con, Anh/Chị/Em)</span> <span class="required-star">*</span></label>
+          <div class="dynamic-table-wrapper">
+            <table class="styled-table" id="familyTable">
+              <thead>
+                <tr>
+                  <th data-i18n="th_fam_name">Họ và tên</th>
+                  <th style="width: 90px;" data-i18n="th_fam_birthyear">Năm sinh</th>
+                  <th style="width: 130px;" data-i18n="th_fam_relation">Mối quan hệ</th>
+                  <th data-i18n="th_fam_job">Nghề nghiệp</th>
+                  <th data-i18n="th_fam_workplace">Nơi làm việc</th>
+                  <th style="width: 90px; text-align: center;" data-i18n="th_fam_emergency">Khẩn cấp?</th>
+                  <th style="width: 50px;" data-i18n="th_action">Xóa</th>
+                </tr>
+              </thead>
+              <tbody id="familyTableBody">
+                <!-- Dynamic Rows -->
+              </tbody>
+            </table>
+          </div>
+          <button type="button" class="btn-action-add" onclick="addFamilyRow()">+ <span data-i18n="btn_add_family">Thêm người thân</span></button>
+
+          <!-- Emergency Phone Block -->
+          <div id="emergencyPhoneBox" class="form-group" style="margin-top: 18px; display: none; background: #fffbeb; padding: 14px; border-radius: var(--radius-sm); border: 1px solid #fef3c7;">
+            <label class="form-label" style="color: #92400e;">
+              <span data-i18n="label_emergency_phone">Số điện thoại người liên lạc khẩn cấp</span>: <span id="lblEmergencyPerson" style="font-weight: 700;"></span> <span class="required-star">*</span>
+            </label>
+            <input type="tel" id="emergencyPhone" class="form-control" data-i18n-ph="ph_emergency_phone" placeholder="Nhập SĐT của người thân được chọn làm khẩn cấp">
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 26px 0;">
+
+          <!-- Dependent Section -->
+          <div class="form-group">
+            <label class="form-label"><span data-i18n="label_has_dependents">Bạn có đăng ký người phụ thuộc (giảm trừ gia cảnh) không?</span> <span class="required-star">*</span></label>
+            <select id="hasDependents" class="form-control" onchange="toggleDependents(this.value)" style="max-width: 250px;">
+              <!-- Rendered dynamically -->
+            </select>
+          </div>
+
+          <div id="dependentSection" style="display: none; margin-top: 14px;">
+            <div class="info-callout" id="calloutDepBox">
+              <!-- Injected via I18N -->
+            </div>
+            <div class="dynamic-table-wrapper">
+              <table class="styled-table" id="dependentTable">
+                <thead>
+                  <tr>
+                    <th data-i18n="th_dep_name">Họ tên NPT</th>
+                    <th style="width: 90px;" data-i18n="th_dep_birthyear">Năm sinh</th>
+                    <th style="width: 130px;" data-i18n="th_dep_relation">Mối quan hệ</th>
+                    <th data-i18n="th_dep_tax">Mã số thuế NPT</th>
+                    <th data-i18n="th_dep_effect">Thời điểm tính giảm trừ</th>
+                    <th style="width: 50px;" data-i18n="th_action">Xóa</th>
+                  </tr>
+                </thead>
+                <tbody id="dependentTableBody">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+            <button type="button" class="btn-action-add" onclick="addDependentRow()">+ <span data-i18n="btn_add_dependent">Thêm người phụ thuộc</span></button>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(5)">&larr; <span data-i18n="btn_back">Quay lại</span></button>
+            <button type="button" class="btn btn-primary" onclick="validateAndGo(6, 7)"><span data-i18n="btn_continue">Tiếp tục</span> &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 7: HỒ SƠ ĐÍNH KÈM -->
+        <div id="step-7" class="form-step">
+          <div class="step-header">
+            <h2 class="step-title" data-i18n="step7_title">Bước 7: Đính kèm hồ sơ & giấy tờ nhân sự</h2>
+            <div class="step-description" data-i18n="step7_desc">Chấp nhận định dạng: PDF, JPG, PNG, DOC, DOCX. Dung lượng tối đa: 15MB/file.</div>
+          </div>
+
+          <div class="upload-cards-grid">
+            <!-- ẢNH THẺ (BẮT BUỘC) -->
+            <div class="upload-card" id="card_Anh_the">
+              <div class="upload-card-header">
+                <span class="upload-card-title">👤 <span data-i18n="doc_photo_title">Ảnh thẻ chân dung (3x4 hoặc 4x6)</span></span>
+                <span class="upload-req-tag req-tag-mandatory" id="tag_Anh_the" data-i18n="tag_mandatory">Bắt buộc</span>
+              </div>
+              <input type="file" id="file_Anh_the" class="file-input-hidden" accept=".jpg,.jpeg,.png,.pdf" onchange="handleFileSelected('Anh_the', this)">
+              <button type="button" class="btn-choose-file" onclick="document.getElementById('file_Anh_the').click()" data-i18n="btn_choose_file">Chọn tệp...</button>
+              <div class="upload-file-status" id="status_Anh_the" data-i18n="status_no_file">Chưa chọn tệp</div>
+            </div>
+
+            <!-- CCCD (BẮT BUỘC) -->
+            <div class="upload-card" id="card_CCCD">
+              <div class="upload-card-header">
+                <span class="upload-card-title">🪪 <span data-i18n="doc_cccd_title">Bản sao CCCD / CMND</span></span>
+                <span class="upload-req-tag req-tag-mandatory" id="tag_CCCD" data-i18n="tag_mandatory">Bắt buộc</span>
+              </div>
+              <input type="file" id="file_CCCD" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFileSelected('CCCD', this)">
+              <button type="button" class="btn-choose-file" onclick="document.getElementById('file_CCCD').click()" data-i18n="btn_choose_file">Chọn tệp...</button>
+              <div class="upload-file-status" id="status_CCCD" data-i18n="status_no_file">Chưa chọn tệp</div>
+            </div>
+
+            <!-- SYLL -->
+            <div class="upload-card" id="card_SYLL">
+              <div class="upload-card-header">
+                <span class="upload-card-title">📄 <span data-i18n="doc_syll_title">Sơ yếu lý lịch (SYLL)</span></span>
+                <span class="upload-req-tag req-tag-mandatory" id="tag_SYLL" data-i18n="tag_mandatory">Bắt buộc</span>
+              </div>
+              <input type="file" id="file_SYLL" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFileSelected('SYLL', this)">
+              <button type="button" class="btn-choose-file" onclick="document.getElementById('file_SYLL').click()" data-i18n="btn_choose_file">Chọn tệp...</button>
+              <div class="upload-file-status" id="status_SYLL" data-i18n="status_no_file">Chưa chọn tệp</div>
+            </div>
+
+            <!-- Giấy khám sức khỏe -->
+            <div class="upload-card" id="card_Giay_kham_suc_khoe">
+              <div class="upload-card-header">
+                <span class="upload-card-title">🩺 <span data-i18n="doc_health_title">Giấy khám sức khỏe</span></span>
+                <span class="upload-req-tag req-tag-mandatory" id="tag_Giay_kham_suc_khoe" data-i18n="tag_mandatory">Bắt buộc</span>
+              </div>
+              <input type="file" id="file_Giay_kham_suc_khoe" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFileSelected('Giay_kham_suc_khoe', this)">
+              <button type="button" class="btn-choose-file" onclick="document.getElementById('file_Giay_kham_suc_khoe').click()" data-i18n="btn_choose_file">Chọn tệp...</button>
+              <div class="upload-file-status" id="status_Giay_kham_suc_khoe" data-i18n="status_no_file">Chưa chọn tệp</div>
+            </div>
+
+            <!-- Xác thực cư trú VNEID -->
+            <div class="upload-card" id="card_Xac_thuc_cu_tru_VNEID">
+              <div class="upload-card-header">
+                <span class="upload-card-title">🏠 <span data-i18n="doc_vneid_title">Xác thực cư trú VNeID</span></span>
+                <span class="upload-req-tag req-tag-mandatory" id="tag_Xac_thuc_cu_tru_VNEID" data-i18n="tag_mandatory">Bắt buộc</span>
+              </div>
+              <input type="file" id="file_Xac_thuc_cu_tru_VNEID" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFileSelected('Xac_thuc_cu_tru_VNEID', this)">
+              <button type="button" class="btn-choose-file" onclick="document.getElementById('file_Xac_thuc_cu_tru_VNEID').click()" data-i18n="btn_choose_file">Chọn tệp...</button>
+              <div class="upload-file-status" id="status_Xac_thuc_cu_tru_VNEID" data-i18n="status_no_file">Chưa chọn tệp</div>
+            </div>
+
+            <!-- Bằng cấp -->
+            <div class="upload-card" id="card_Bang_cap">
+              <div class="upload-card-header">
+                <span class="upload-card-title">🎓 <span data-i18n="doc_degree_title">Bằng cấp chuyên môn & Chứng chỉ</span></span>
+                <span class="upload-req-tag req-tag-mandatory" id="tag_Bang_cap" data-i18n="tag_mandatory">Bắt buộc</span>
+              </div>
+              <input type="file" id="file_Bang_cap" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFileSelected('Bang_cap', this)">
+              <button type="button" class="btn-choose-file" onclick="document.getElementById('file_Bang_cap').click()" data-i18n="btn_choose_file">Chọn tệp...</button>
+              <div class="upload-file-status" id="status_Bang_cap" data-i18n="status_no_file">Chưa chọn tệp</div>
+            </div>
+          </div>
+
+          <!-- LƯU Ý HỒ SƠ BẢN CỨNG -->
+          <div class="physical-doc-notice">
+            <span class="notice-icon">📌</span>
+            <div>
+              <strong data-i18n="notice_first_day_title">Lưu ý quan trọng khi nhận việc:</strong><br>
+              <span data-i18n="notice_first_day_content">
+                Tại ngày đầu tới nhận việc, anh/chị mang đầy đủ các hồ sơ trên (Bản sao chứng thực: CCCD/CMND, Bằng tốt nghiệp/Chứng chỉ; Bản gốc: SYLL, Giấy khám sức khỏe; Bản photo: Xác thực cư trú trên VNEID; 02 ảnh thẻ 4cm x 6cm) nộp cho bộ phận Nhân sự của Công ty.
+              </span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(6)">&larr; <span data-i18n="btn_back">Quay lại</span></button>
+            <button type="button" class="btn btn-primary" onclick="validateAndGo(7, 8)"><span data-i18n="btn_continue">Tiếp tục</span> &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 8: KIỂM TRA THÔNG TIN (REVIEW) -->
+        <div id="step-8" class="form-step">
+          <div class="step-header">
+            <h2 class="step-title" data-i18n="step8_title">Bước 8: Rà soát & Kiểm tra thông tin</h2>
+            <div class="step-description" data-i18n="step8_desc">Vui lòng kiểm tra kỹ lưỡng các mục dưới đây trước khi chuyển sang bước cam kết.</div>
+          </div>
+
+          <div id="reviewContainer">
+            <!-- Generated Dynamically by JS -->
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(7)">&larr; <span data-i18n="btn_back">Quay lại</span></button>
+            <button type="button" class="btn btn-primary" onclick="goToStep(9)"><span data-i18n="btn_confirm_review">Xác nhận & Sang Cam kết</span> &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 9: CAM KẾT & HOÀN TẤT -->
+        <div id="step-9" class="form-step">
+          <div class="step-header">
+            <h2 class="step-title" data-i18n="step9_title">Bước 9: Cam kết & Hoàn tất kê khai</h2>
+            <div class="step-description" data-i18n="step9_desc">Xác nhận pháp lý về tính trung thực của các thông tin đã kê khai.</div>
+          </div>
+
+          <div style="background: #fff; border: 1.5px solid var(--primary); border-radius: var(--radius-md); padding: 22px; margin-bottom: 22px;">
+            <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 15.5px;" data-i18n="commitment_header">CAM KẾT CỦA NGƯỜI LAO ĐỘNG</h3>
+            <p style="font-size: 14px; line-height: 1.7; color: #334155; margin-bottom: 18px;" data-i18n="commitment_text">
+              "Tôi xin cam kết những thông tin đã kê khai trên đây là đúng sự thật. Nếu có điều gì sai sót so với thông tin trên giấy tờ bản cứng sẽ nộp, tôi xin chịu mọi trách nhiệm trước Công ty và trước pháp luật."
+            </p>
+            
+            <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+              <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; color: var(--primary);">
+                <input type="radio" name="commitmentRadio" value="Đồng ý" style="width: 18px; height: 18px;">
+                <span data-i18n="commitment_agree">Tôi đồng ý với cam kết trên</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; color: var(--text-muted);">
+                <input type="radio" name="commitmentRadio" value="Không đồng ý" style="width: 18px; height: 18px;">
+                <span data-i18n="commitment_disagree">Không đồng ý</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="physical-doc-notice" style="margin-top: 0; margin-bottom: 24px;">
+            <span class="notice-icon">📌</span>
+            <div>
+              <strong data-i18n="notice_first_day_title">Lưu ý quan trọng khi nhận việc:</strong><br>
+              <span data-i18n="notice_first_day_content">
+                Tại ngày đầu tới nhận việc, anh/chị mang đầy đủ các hồ sơ trên (Bản sao chứng thực: CCCD/CMND, Bằng tốt nghiệp/Chứng chỉ; Bản gốc: SYLL, Giấy khám sức khỏe; Bản photo: Xác thực cư trú trên VNEID; 02 ảnh thẻ 4cm x 6cm) nộp cho bộ phận Nhân sự của Công ty.
+              </span>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(8)">&larr; <span data-i18n="btn_back_review">Quay lại kiểm tra</span></button>
+            <button type="button" id="btnFinalSubmit" class="btn btn-success" style="padding: 12px 30px; font-size: 14.5px;" onclick="openConfirmModal()">
+              <span data-i18n="btn_finish_submit">Hoàn tất kê khai</span> &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 10: SUCCESS SCREEN -->
+        <div id="step-10" class="form-step">
+          <div class="success-card">
+            <div class="success-icon-wrapper">✓</div>
+            <h2 style="font-size: 24px; color: var(--primary); font-weight: 800;" data-i18n="success_title">KÊ KHAI THÀNH CÔNG</h2>
+            <p style="color: var(--text-muted); margin-top: 8px; font-size: 14.5px;" data-i18n="success_desc">
+              Cảm ơn bạn đã hoàn tất việc kê khai thông tin nhân sự.<br>Toàn bộ hồ sơ của bạn đã được lưu trữ an toàn trên hệ thống.
+            </p>
+            <div>
+              <span class="success-code-tag" id="submissionIdBadge">Mã hồ sơ: HR-LOADING</span>
+            </div>
+            <p style="font-size: 13.5px; color: #64748b; margin-top: 14px;" data-i18n="success_contact_hr">
+              Vui lòng chuẩn bị các hồ sơ bản cứng như hướng dẫn để nộp vào ngày đầu nhận việc.
+            </p>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="portal-footer">
+    <div style="font-weight: 600; margin-bottom: 4px;" data-i18n="footer_title">&copy; Cổng Thông Tin Nhân Sự - Bộ phận Nhân sự (EDUCO)</div>
+    <div data-i18n="footer_desc">Thông tin kê khai được bảo mật và chỉ sử dụng cho mục đích quản lý nhân sự theo quy định của Pháp luật.</div>
+  </footer>
+
+  <!-- LOAD JAVASCRIPT EXTERNAL -->
+  <script src="app.js"></script>
+</body>
+</html>
