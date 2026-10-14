@@ -1,9 +1,9 @@
 // ========================================================================
 // CONFIGURATION & GLOBAL APP STATE
 // ========================================================================
-// Thay đổi link sau khi bạn Deploy Web App trên Apps Script (Deploy -> Web app -> Exec URL)
 const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbywxn166MK1yy1GoJoYV1INq0wO9qf5YAZ8xISvweMf_QaSxVVYJIQG4bzRy2Y8xFKqTg/exec';
 
+// Logo Google Drive Direct & Thumbnail Fallback
 const COMPANY_LOGO_URL = 'https://lh3.googleusercontent.com/d/1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V';
 
 const ETHNIC_GROUPS = [
@@ -23,6 +23,8 @@ let APP_STATE = {
   lang: 'vi',
   currentStep: 0,
   links: {},
+  addressTree: {}, // { "Hà Nội": ["Phường A", "Xã B"], ... }
+  provinces: [],
   uploadedFilesData: {},
   emergencyContactPerson: null,
   isSubmitting: false,
@@ -37,7 +39,7 @@ const I18N_DICT = {
     app_title: "Kê Khai Thông Tin Nhân Sự",
     step_badge_prefix: "Bước",
     step_nav_1: "Cá nhân",
-    step_nav_2: "CCCD & Nơi ở",
+    step_nav_2: "Định danh & Nơi ở",
     step_nav_3: "Công việc",
     step_nav_4: "Học vấn",
     step_nav_5: "Thuế & Bank",
@@ -50,18 +52,22 @@ const I18N_DICT = {
     welcome_title: "THÔNG TIN KÊ KHAI NHÂN SỰ",
     welcome_subtitle: "Chào mừng bạn gia nhập đội ngũ nhân sự! Vui lòng hoàn thành các bước kê khai thông tin lý lịch và đính kèm hồ sơ theo quy định để chúng tôi hoàn thiện thủ tục tiếp nhận.",
     welcome_badge_time: "⏱ Thời gian hoàn tất: ~10 phút",
-    welcome_badge_security: "🔒 Bảo mật tuyệt đối",
-    welcome_badge_prep: "📁 Chuẩn bị sẵn CCCD, Ảnh thẻ & Bằng cấp",
+    welcome_badge_security: "🔒 Bảo mật dữ liệu tuyệt đối (NĐ 13/2023/NĐ-CP)",
+    welcome_badge_prep: "📁 Chuẩn bị sẵn CCCD/Căn cước, Ảnh thẻ & Bằng cấp",
     btn_start: "Bắt đầu kê khai",
     
     // Step 1
     step1_title: "Bước 1: Thông tin cá nhân cơ bản",
-    step1_desc: "Vui lòng nhập thông tin cơ bản chính xác theo hộ tịch/giấy khai sinh.",
+    step1_desc: "Vui lòng nhập thông tin cơ bản chính xác theo hộ tịch/giấy khai sinh và CSDL Quốc gia về dân cư.",
     label_fullname: "Họ và tên",
     label_gender: "Giới tính",
     label_other_gender: "Vui lòng nhập giới tính",
     label_dob: "Ngày sinh",
-    label_pob: "Nơi sinh (Ghi đầy đủ theo Giấy khai sinh)",
+    label_pob_group: "Nơi đăng ký khai sinh / Quê quán",
+    helper_pob_note: "ℹ️ Lưu ý: Lấy thông tin từ mục Quê quán hoặc Nơi sinh trên VNeID / Căn cước công dân. Chọn địa giới hành chính sau khi sáp nhập. Phần địa chỉ chi tiết cụ thể có thể để trống nếu không có.",
+    label_pob_province: "Tỉnh / Thành phố",
+    label_pob_ward: "Phường / Xã",
+    label_pob_detail: "Địa chỉ chi tiết (Không bắt buộc)",
     label_marital: "Tình trạng hôn nhân",
     label_other_marital: "Tình trạng hôn nhân khác",
     label_nationality: "Quốc tịch",
@@ -73,7 +79,7 @@ const I18N_DICT = {
     
     // Step 2
     step2_title: "Bước 2: Định danh, Nơi ở & Liên lạc",
-    step2_desc: "Các thông tin phục vụ ký kết hợp đồng và bảo hiểm xã hội.",
+    step2_desc: "Các thông tin phục vụ ký kết hợp đồng, đăng ký thuế và bảo hiểm xã hội.",
     label_id_type: "Loại thẻ định danh",
     label_other_id_type: "Loại thẻ khác",
     label_id_number: "Số thẻ định danh",
@@ -81,10 +87,14 @@ const I18N_DICT = {
     label_id_expiry_date: "Ngày hết hạn",
     label_id_issue_place: "Nơi cấp thẻ",
     label_other_id_issue_place: "Nhập cơ quan cấp thẻ khác",
-    label_perm_addr: "Hộ khẩu thường trú",
-    helper_perm_addr: "Ghi chi tiết theo thông tin trên VNEID",
-    label_curr_addr: "Nơi ở hiện tại",
-    helper_curr_addr: "Tương tự hộ khẩu thường trú, ghi rõ số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố.",
+    
+    label_perm_addr_group: "Hộ khẩu thường trú",
+    helper_addr_merged_note: "ℹ️ Lưu ý địa chỉ: Kê khai theo địa chỉ hành chính sau khi sáp nhập mới nhất (theo thông tin hiển thị trên VNeID / CCCD / Thẻ Căn cước). Ô chi tiết bắt buộc ghi đầy đủ các cấp đến trước Phường/Xã (số nhà, ngõ, đường, tổ/thôn/xóm).",
+    label_addr_province: "Tỉnh / Thành phố",
+    label_addr_ward: "Phường / Xã",
+    label_addr_detail: "Địa chỉ chi tiết trước Phường/Xã (Số nhà, đường, ngõ, thôn/xóm/tổ)",
+    
+    label_curr_addr_group: "Nơi ở hiện tại (Cư trú thực tế)",
     label_phone: "Số điện thoại liên lạc",
     label_email: "Email cá nhân",
     
@@ -154,7 +164,7 @@ const I18N_DICT = {
     step7_title: "Bước 7: Đính kèm hồ sơ & giấy tờ nhân sự",
     step7_desc: "Chấp nhận định dạng: PDF, JPG, PNG, DOC, DOCX. Dung lượng tối đa: 15MB/file.",
     doc_photo_title: "Ảnh thẻ chân dung (3x4 hoặc 4x6)",
-    doc_cccd_title: "Bản sao CCCD / CMND",
+    doc_cccd_title: "Bản sao CCCD / Thẻ Căn cước",
     doc_syll_title: "Sơ yếu lý lịch (SYLL)",
     doc_health_title: "Giấy khám sức khỏe",
     doc_vneid_title: "Xác thực cư trú VNeID",
@@ -164,7 +174,7 @@ const I18N_DICT = {
     btn_choose_file: "Chọn tệp...",
     status_no_file: "Chưa chọn tệp",
     notice_first_day_title: "Lưu ý quan trọng khi nhận việc:",
-    notice_first_day_content: "Tại ngày đầu tới nhận việc, anh/chị mang đầy đủ các hồ sơ trên (Bản sao chứng thực: CCCD/CMND, Bằng tốt nghiệp/Chứng chỉ; Bản gốc: SYLL, Giấy khám sức khỏe; Bản photo: Xác thực cư trú trên VNEID; 02 ảnh thẻ 4cm x 6cm) nộp cho bộ phận Nhân sự của Công ty.",
+    notice_first_day_content: "Tại ngày đầu tới nhận việc, anh/chị mang đầy đủ các hồ sơ trên (Bản sao chứng thực: CCCD/Căn cước, Bằng tốt nghiệp/Chứng chỉ; Bản gốc: SYLL, Giấy khám sức khỏe; Bản photo: Xác thực cư trú trên VNEID; 02 ảnh thẻ 4cm x 6cm) nộp cho bộ phận Nhân sự của Công ty.",
 
     // Step 8
     step8_title: "Bước 8: Rà soát & Kiểm tra thông tin",
@@ -173,17 +183,22 @@ const I18N_DICT = {
 
     // Step 9
     step9_title: "Bước 9: Cam kết & Hoàn tất kê khai",
-    step9_desc: "Xác nhận pháp lý về tính trung thực của các thông tin đã kê khai.",
+    step9_desc: "Xác nhận pháp lý về tính trung thực và cam kết bảo vệ dữ liệu cá nhân theo quy định.",
+    
+    // Privacy Statement from Company
+    company_privacy_title: "CAM KẾT BẢO VỆ DỮ LIỆU CÁ NHÂN CỦA CÔNG TY",
+    company_privacy_badge: "Tuân thủ Nghị định 13/2023/NĐ-CP",
+    company_privacy_content: "Công ty cam kết toàn bộ dữ liệu, thông tin cá nhân và hồ sơ đính kèm do người lao động cung cấp chỉ được sử dụng cho mục đích quản lý nhân sự nội bộ, thực hiện thủ tục tiếp nhận, ký kết hợp đồng lao động, đóng BHXH, kê khai thuế TNCN và giải quyết chế độ phúc lợi theo quy định của Pháp luật. Công ty cam đoan bảo mật tuyệt đối, không cung cấp, mua bán, chuyển giao hoặc sử dụng dữ liệu của bạn cho bất kỳ bên thứ ba nào vì mục đích thương mại khi chưa có sự đồng ý của bạn.",
+    
     commitment_header: "CAM KẾT CỦA NGƯỜI LAO ĐỘNG",
-    commitment_text: "\"Tôi xin cam kết những thông tin đã kê khai trên đây là đúng sự thật. Nếu có điều gì sai sót so với thông tin trên giấy tờ bản cứng sẽ nộp, tôi xin chịu mọi trách nhiệm trước Công ty và trước pháp luật.\"",
-    commitment_agree: "Tôi đồng ý với cam kết trên",
-    commitment_disagree: "Không đồng ý",
+    commitment_text: "\"Tôi đã đọc kỹ cam kết bảo mật của Công ty. Tôi xin cam kết toàn bộ những thông tin đã kê khai trên đây (đặc biệt là thông tin cư trú sau khi sáp nhập) là hoàn toàn đúng sự thật. Nếu có điều gì sai sót hoặc không trùng khớp với hồ sơ gốc bản cứng, tôi xin chịu mọi trách nhiệm trước Công ty và trước pháp luật.\"",
+    commitment_agree: "Tôi đã đọc, hiểu rõ và đồng ý với các cam kết trên",
     btn_back_review: "Quay lại kiểm tra",
     btn_finish_submit: "Hoàn tất kê khai",
 
     // Step 10
     success_title: "KÊ KHAI THÀNH CÔNG",
-    success_desc: "Cảm ơn bạn đã hoàn tất việc kê khai thông tin nhân sự.<br>Toàn bộ hồ sơ của bạn đã được lưu trữ an toàn trên hệ thống.",
+    success_desc: "Cảm ơn bạn đã hoàn tất việc kê khai thông tin nhân sự.<br>Toàn bộ hồ sơ của bạn đã được mã hóa và lưu trữ an toàn trên hệ thống.",
     success_contact_hr: "Vui lòng chuẩn bị các hồ sơ bản cứng như hướng dẫn để nộp vào ngày đầu nhận việc.",
 
     // Modal Draft
@@ -200,10 +215,12 @@ const I18N_DICT = {
     modal_confirm_title: "Xác nhận gửi kê khai",
     modal_confirm_desc: "Vui lòng đảm bảo các thông tin cá nhân và hồ sơ đính kèm là hoàn toàn chính xác. Bạn có chắc chắn muốn hoàn tất việc kê khai ngay bây giờ?",
     footer_title: "© Cổng Thông Tin Nhân Sự - Bộ phận Nhân sự (EDUCO)",
-    footer_desc: "Thông tin kê khai được bảo mật và chỉ sử dụng cho mục đích quản lý nhân sự theo quy định của Pháp luật.",
+    footer_desc: "Thông tin kê khai được bảo vệ theo Nghị định 13/2023/NĐ-CP và chỉ sử dụng cho mục đích quản lý nhân sự theo quy định.",
 
     // Dropdown Option Translations
     opt_select_prefix: "-- Chọn / Select --",
+    opt_select_prov: "-- Chọn Tỉnh / Thành phố --",
+    opt_select_ward: "-- Chọn Phường / Xã --",
     opt_gender_male: "Nam",
     opt_gender_female: "Nữ",
     opt_gender_other: "Khác",
@@ -213,9 +230,9 @@ const I18N_DICT = {
     opt_marital_other: "Khác",
     opt_vietnam: "Việt Nam",
     opt_other: "Khác",
-    opt_id_cccd: "Căn cước công dân (12 số)",
-    opt_id_cmnd: "Chứng minh nhân dân (9 số)",
-    opt_id_other: "Khác (Hộ chiếu / Tạm trú...)",
+    opt_id_cccd: "Căn cước công dân (12 số) / Thẻ Căn cước",
+    opt_id_passport: "Hộ chiếu (Passport)",
+    opt_id_other: "Khác (Giấy tờ hợp pháp khác)",
     opt_place_c06: "Cục Cảnh sát Quản lý Hành chính về Trật tự Xã hội",
     opt_place_c72: "Cục Cảnh sát Đăng ký quản lý Cư trú và Dữ liệu Quốc gia về Dân cư",
     opt_place_bca: "Bộ Công an",
@@ -240,16 +257,15 @@ const I18N_DICT = {
     // Placeholders
     ph_fullname: "Nhập họ và tên đầy đủ (VD: NGUYỄN VĂN A)",
     ph_other_gender: "Nhập giới tính của bạn",
-    ph_pob: "VD: Số 46, Phương Mai, Đống Đa, Hà Nội",
+    ph_pob_detail: "Số nhà, ngõ/ngách, đường (Nếu có - có thể để trống)",
+    ph_addr_detail: "Số nhà, ngõ, đường/phố, thôn/xóm/tổ (ghi rõ cấp trước Phường/Xã)",
     ph_other_marital: "Nhập tình trạng hôn nhân",
     ph_other_nationality: "Nhập tên quốc gia",
     ph_other_ethnicity: "Nhập tên dân tộc",
     ph_other_religion: "Nhập tên tôn giáo",
-    ph_other_id_type: "VD: Hộ chiếu / Thẻ tạm trú",
-    ph_id_number: "Nhập số CCCD/CMND",
+    ph_other_id_type: "VD: Thẻ căn cước công dân nước ngoài / Tạm trú",
+    ph_id_number: "Nhập số CCCD/Căn cước/Hộ chiếu",
     ph_other_id_issue_place: "Nhập đầy đủ tên cơ quan cấp thẻ",
-    ph_perm_addr: "Số nhà ..., đường/phố ..., thôn/xã/phường ..., quận/huyện ..., tỉnh/thành phố ...",
-    ph_curr_addr: "Ghi chi tiết địa chỉ nơi đang cư trú thực tế...",
     ph_phone: "VD: 0912345678",
     ph_email: "VD: nguyenvana@gmail.com",
     ph_other_edu_level: "Nhập trình độ đào tạo của bạn",
@@ -302,18 +318,22 @@ const I18N_DICT = {
     welcome_title: "EMPLOYEE ONBOARDING PORTAL",
     welcome_subtitle: "Welcome to our team! Please complete the personal information declaration and attach mandatory documents so we can finalize your onboarding process.",
     welcome_badge_time: "⏱ Completion time: ~10 mins",
-    welcome_badge_security: "🔒 100% Confidential",
-    welcome_badge_prep: "📁 Prepare your ID, Portrait Photo & Diplomas",
+    welcome_badge_security: "🔒 100% Confidential (Decree 13/2023/ND-CP)",
+    welcome_badge_prep: "📁 Prepare your ID Card, Portrait Photo & Diplomas",
     btn_start: "Start Declaration",
 
     // Step 1
     step1_title: "Step 1: Basic Personal Information",
-    step1_desc: "Please provide accurate basic information matching your birth certificate/civil registry.",
+    step1_desc: "Please provide accurate basic information matching your birth certificate/civil registry & National Population DB.",
     label_fullname: "Full Name",
     label_gender: "Gender",
     label_other_gender: "Please specify gender",
     label_dob: "Date of Birth",
-    label_pob: "Place of Birth (as in Birth Certificate)",
+    label_pob_group: "Place of Birth Registration / Native Place",
+    helper_pob_note: "ℹ️ Note: Retrieve info from Native Place or Place of Birth on VNeID/Citizen ID. Choose post-merger administrative divisions. Detail address is optional.",
+    label_pob_province: "Province / City",
+    label_pob_ward: "Ward / Commune",
+    label_pob_detail: "Detailed Address (Optional)",
     label_marital: "Marital Status",
     label_other_marital: "Other marital status",
     label_nationality: "Nationality",
@@ -325,18 +345,22 @@ const I18N_DICT = {
 
     // Step 2
     step2_title: "Step 2: Identification & Contact",
-    step2_desc: "Information required for employment contract and social insurance.",
+    step2_desc: "Information required for employment contract, tax and social insurance registration.",
     label_id_type: "Identity Document Type",
     label_other_id_type: "Other identity document type",
-    label_id_number: "ID Card Number",
+    label_id_number: "ID Card / Passport Number",
     label_id_issue_date: "Issue Date",
     label_id_expiry_date: "Expiry Date",
     label_id_issue_place: "Place of Issue",
     label_other_id_issue_place: "Specify issuing authority",
-    label_perm_addr: "Permanent Address",
-    helper_perm_addr: "Specify house number, street, ward, district, province/city.",
-    label_curr_addr: "Current Residential Address",
-    helper_curr_addr: "Specify your current practical residential address.",
+    
+    label_perm_addr_group: "Permanent Address",
+    helper_addr_merged_note: "ℹ️ Note on Administrative Mergers: Please declare according to the latest post-merger administrative divisions (as shown on VNeID / Citizen ID). Detail field must include all levels prior to Ward/Commune (house no., street, lane, hamlet).",
+    label_addr_province: "Province / City",
+    label_addr_ward: "Ward / Commune",
+    label_addr_detail: "Detail before Ward/Commune (House no., street, hamlet)",
+    
+    label_curr_addr_group: "Current Residential Address (Actual Residence)",
     label_phone: "Contact Phone Number",
     label_email: "Personal Email",
 
@@ -406,7 +430,7 @@ const I18N_DICT = {
     step7_title: "Step 7: Attach Documents & Credentials",
     step7_desc: "Accepted formats: PDF, JPG, PNG, DOC, DOCX. Max file size: 15MB/file.",
     doc_photo_title: "Portrait Photo (3x4 or 4x6 cm)",
-    doc_cccd_title: "Copy of Citizen ID / Passport",
+    doc_cccd_title: "Copy of Citizen ID Card / Passport",
     doc_syll_title: "Curriculum Vitae (SYLL)",
     doc_health_title: "Health Certificate",
     doc_vneid_title: "VNeID Residence Verification",
@@ -425,17 +449,21 @@ const I18N_DICT = {
 
     // Step 9
     step9_title: "Step 9: Commitment & Submission",
-    step9_desc: "Legal declaration regarding the truthfulness of submitted information.",
+    step9_desc: "Legal declaration regarding the accuracy of submitted data & Personal Data Protection Policy.",
+    
+    company_privacy_title: "COMPANY'S COMMITMENT TO PERSONAL DATA PROTECTION",
+    company_privacy_badge: "Compliance with Decree 13/2023/ND-CP",
+    company_privacy_content: "The Company strictly commits that all personal data, files, and credentials provided by the employee are exclusively used for internal human resources administration, employment contract execution, statutory insurance, personal tax withholding, and payroll-related welfare. We strictly guarantee that your data will NEVER be shared, sold, or transferred to any third party for commercial purposes without your explicit consent.",
+    
     commitment_header: "EMPLOYEE'S COMMITMENT",
-    commitment_text: "\"I hereby commit that the information declared above is true and accurate. If there are any discrepancies compared to the hard-copy documents submitted, I take full responsibility before the Company and the law.\"",
-    commitment_agree: "I agree with the commitment above",
-    commitment_disagree: "I disagree",
+    commitment_text: "\"I have thoroughly read the Company's Personal Data Protection Policy. I hereby declare and commit that all details provided above (especially post-merger residential addresses) are completely truthful and accurate. If there are any discrepancies compared to physical credentials, I take full responsibility before the Company and the law.\"",
+    commitment_agree: "I have read, understood, and agree to the commitments above",
     btn_back_review: "Back to Review",
     btn_finish_submit: "Complete Submission",
 
     // Step 10
     success_title: "DECLARATION SUCCESSFUL",
-    success_desc: "Thank you for completing your onboarding declaration.<br>All records and documents have been securely uploaded to our system.",
+    success_desc: "Thank you for completing your onboarding declaration.<br>All records and documents have been securely encrypted and stored on our system.",
     success_contact_hr: "Please prepare hard-copy documents as instructed to submit on your first working day.",
 
     // Modal Draft
@@ -452,10 +480,12 @@ const I18N_DICT = {
     modal_confirm_title: "Confirm Submission",
     modal_confirm_desc: "Please ensure all personal details and attached files are completely accurate. Do you confirm to submit now?",
     footer_title: "© Employee Onboarding Portal - HR Department (EDUCO)",
-    footer_desc: "All submitted data is strictly confidential and used solely for human resources management under current regulations.",
+    footer_desc: "All submitted data is strictly protected under Decree 13/2023/ND-CP and used solely for human resources purposes.",
 
     // Dropdown Option Translations
     opt_select_prefix: "-- Select --",
+    opt_select_prov: "-- Select Province / City --",
+    opt_select_ward: "-- Select Ward / Commune --",
     opt_gender_male: "Male",
     opt_gender_female: "Female",
     opt_gender_other: "Other",
@@ -465,9 +495,9 @@ const I18N_DICT = {
     opt_marital_other: "Other",
     opt_vietnam: "Vietnam",
     opt_other: "Other",
-    opt_id_cccd: "Citizen Identity Card (12 digits)",
-    opt_id_cmnd: "Identity Card (9 digits)",
-    opt_id_other: "Other (Passport / Residence card...)",
+    opt_id_cccd: "Citizen Identity Card (12 digits) / ID Card",
+    opt_id_passport: "Passport",
+    opt_id_other: "Other (Legal travel/resident doc)",
     opt_place_c06: "Police Department of Administrative Management of Social Order (C06)",
     opt_place_c72: "Police Dept for Residence Registration & Nat. Pop. Data (C72)",
     opt_place_bca: "Ministry of Public Security",
@@ -492,16 +522,15 @@ const I18N_DICT = {
     // Placeholders
     ph_fullname: "Enter full name (e.g., NGUYEN VAN A)",
     ph_other_gender: "Specify your gender",
-    ph_pob: "e.g., 46 Phuong Mai, Dong Da, Hanoi",
+    ph_pob_detail: "House no., street, lane (If any - optional)",
+    ph_addr_detail: "House no., street, lane, hamlet (details prior to Ward)",
     ph_other_marital: "Specify marital status",
     ph_other_nationality: "Specify country name",
     ph_other_ethnicity: "Specify ethnicity",
     ph_other_religion: "Specify religion",
-    ph_other_id_type: "e.g., Passport / Permanent Card",
+    ph_other_id_type: "e.g., Permanent / Temporary Card",
     ph_id_number: "Enter ID/Passport number",
     ph_other_id_issue_place: "Enter full issuing authority name",
-    ph_perm_addr: "House no., street, ward, district, province/city...",
-    ph_curr_addr: "Enter actual detailed residential address...",
     ph_phone: "e.g., 0912345678",
     ph_email: "e.g., nguyenvana@gmail.com",
     ph_other_edu_level: "Specify your education qualification",
@@ -559,9 +588,9 @@ const DROPDOWN_CONFIGS = {
     { val: "Khác", vi: "Khác", en: "Other" }
   ],
   idCardType: [
-    { val: "Căn cước công dân", vi: "Căn cước công dân (12 số)", en: "Citizen Identity Card (12 digits)" },
-    { val: "Chứng minh nhân dân", vi: "Chứng minh nhân dân (9 số)", en: "Identity Card (9 digits)" },
-    { val: "Khác", vi: "Khác (Hộ chiếu / Tạm trú...)", en: "Other (Passport / Residence card...)" }
+    { val: "Căn cước công dân / Thẻ Căn cước", vi: "Căn cước công dân (12 số) / Thẻ Căn cước", en: "Citizen Identity Card (12 digits) / ID Card" },
+    { val: "Hộ chiếu", vi: "Hộ chiếu (Passport)", en: "Passport" },
+    { val: "Khác", vi: "Khác (Hộ chiếu nước ngoài / Tạm trú...)", en: "Other (Foreign passport / Resident card...)" }
   ],
   idIssuePlace: [
     { val: "Cục Cảnh sát Quản lý Hành chính về Trật tự Xã hội", vi: "Cục Cảnh sát Quản lý Hành chính về Trật tự Xã hội", en: "Police Department of Administrative Management of Social Order (C06)" },
@@ -623,6 +652,7 @@ function setLanguage(lang) {
 
   // 4. Render lại toàn bộ Dropdown theo ngôn ngữ
   renderAllDropdowns();
+  populateAddressDropdowns();
 
   // 5. Cập nhật Badge trên Header
   if (APP_STATE.currentStep > 0 && APP_STATE.currentStep < 10) {
@@ -714,6 +744,50 @@ function renderAllDropdowns() {
 }
 
 // ========================================================================
+// ADDRESS HIERARCHICAL POPULATOR (PROVINCE -> WARD)
+// ========================================================================
+function populateAddressDropdowns() {
+  const dict = I18N_DICT[APP_STATE.lang] || I18N_DICT['vi'];
+  const provSelects = ['pobProvince', 'permProvince', 'currProvince'];
+
+  provSelects.forEach(selId => {
+    const select = document.getElementById(selId);
+    if (!select) return;
+    const currentVal = select.value;
+
+    let html = `<option value="">${dict.opt_select_prov}</option>`;
+    APP_STATE.provinces.forEach(prov => {
+      const sel = (prov === currentVal) ? 'selected' : '';
+      html += `<option value="${prov}" ${sel}>${prov}</option>`;
+    });
+    select.innerHTML = html;
+  });
+}
+
+function onProvinceChange(type) {
+  const dict = I18N_DICT[APP_STATE.lang] || I18N_DICT['vi'];
+  const provSelect = document.getElementById(type + 'Province');
+  const wardSelect = document.getElementById(type + 'Ward');
+  if (!provSelect || !wardSelect) return;
+
+  const selectedProv = provSelect.value;
+  wardSelect.innerHTML = `<option value="">${dict.opt_select_ward}</option>`;
+
+  if (!selectedProv || !APP_STATE.addressTree[selectedProv]) {
+    wardSelect.disabled = true;
+    return;
+  }
+
+  wardSelect.disabled = false;
+  const wards = APP_STATE.addressTree[selectedProv] || [];
+  let html = `<option value="">${dict.opt_select_ward}</option>`;
+  wards.forEach(w => {
+    html += `<option value="${w}">${w}</option>`;
+  });
+  wardSelect.innerHTML = html;
+}
+
+// ========================================================================
 // "KHÁC" (OTHER) DROPDOWN CONTROLLER
 // ========================================================================
 function handleDropdownWithCustom(selectElement, customGroupId) {
@@ -732,33 +806,61 @@ function handleDropdownWithCustom(selectElement, customGroupId) {
 }
 
 // ========================================================================
+// LOGO RESILIENCE CONTROLLER (Bypass Google Drive Hotlink blocks on Vercel)
+// ========================================================================
+function setupBrandLogos() {
+  const headerImg = document.getElementById('headerLogo');
+  const welcomeImg = document.getElementById('welcomeLogo');
+  
+  const setupImg = (imgEl, badgeId) => {
+    if (!imgEl) return;
+    imgEl.referrerPolicy = 'no-referrer';
+    imgEl.crossOrigin = 'anonymous';
+
+    // Đặt link ảnh trực tiếp
+    imgEl.src = COMPANY_LOGO_URL;
+
+    imgEl.onerror = function() {
+      // Thử thumbnail link
+      const fallbackUrl = 'https://drive.google.com/thumbnail?id=1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V&sz=w500';
+      if (imgEl.src !== fallbackUrl) {
+        imgEl.src = fallbackUrl;
+      } else {
+        // Nếu vẫn không được hiển thị Huy hiệu vector cao cấp thay thế
+        imgEl.style.display = 'none';
+        const badge = document.getElementById(badgeId);
+        if (badge) badge.style.display = 'flex';
+      }
+    };
+  };
+
+  setupImg(headerImg, 'headerBrandBadge');
+  setupImg(welcomeImg, 'welcomeBrandBadge');
+}
+
+// ========================================================================
 // LIFECYCLE HOOKS (INIT)
 // ========================================================================
 document.addEventListener('DOMContentLoaded', function() {
-  if (COMPANY_LOGO_URL && !COMPANY_LOGO_URL.includes('DÁN_LINK')) {
-    document.getElementById('headerLogo').src = COMPANY_LOGO_URL;
-    document.getElementById('welcomeLogo').src = COMPANY_LOGO_URL;
-  }
-
+  setupBrandLogos();
   setLanguage('vi');
   addExperienceRow();
   addFamilyRow();
 
-  // Tải dữ liệu bằng FETCH API
+  // Tải dữ liệu từ GAS (Bao gồm Links & Danh mục Address Tỉnh/Phường)
   loadInitialSystemData();
 
   checkAndPromptDraftModal();
   updateUploadRequirements();
 });
 
-// THAY THẾ google.script.run BẰNG FETCH CHO INITIAL DATA
 async function loadInitialSystemData() {
   if (!GAS_API_URL || GAS_API_URL.includes('DÁN_LINK')) {
     console.warn('Vui lòng cấu hình GAS_API_URL trong app.js');
     return;
   }
 
-  showLoading('Đang kết nối cấu hình hệ thống...');
+  showLoading('Đang kết nối cấu hình hệ thống & nạp danh mục địa chỉ...');
   try {
     const response = await fetch(GAS_API_URL, {
       method: 'GET',
@@ -769,7 +871,16 @@ async function loadInitialSystemData() {
 
     if (result && result.success) {
       APP_STATE.links = result.data.links || {};
+      APP_STATE.addressTree = result.data.addressTree || {};
+      APP_STATE.provinces = result.data.provinces || Object.keys(APP_STATE.addressTree);
+
       rebindDynamicLinks();
+      populateAddressDropdowns();
+
+      // Nếu có draft pending, đồng bộ lại địa chỉ sau khi nạp danh mục xong
+      if (APP_STATE.pendingDraftData) {
+        restoreDraftAddressFields(APP_STATE.pendingDraftData);
+      }
     } else {
       showToast('Lỗi tải cấu hình: ' + (result ? result.error : 'Không phản hồi'), 'error');
     }
@@ -1057,10 +1168,19 @@ function validateStep(step) {
       showToast(isEn ? 'Please select date of birth.' : 'Vui lòng chọn ngày sinh.', 'error');
       return false;
     }
-    if (!document.getElementById('pob').value.trim()) {
-      showToast(isEn ? 'Please enter place of birth.' : 'Vui lòng nhập nơi sinh.', 'error');
+    
+    // Nơi sinh / Quê quán: Tỉnh + Phường bắt buộc, chi tiết không bắt buộc
+    if (!document.getElementById('pobProvince').value) {
+      showToast(isEn ? 'Please select Birth Place Province/City.' : 'Vui lòng chọn Tỉnh/Thành phố nơi đăng ký khai sinh/quê quán.', 'error');
+      document.getElementById('pobProvince').focus();
       return false;
     }
+    if (!document.getElementById('pobWard').value) {
+      showToast(isEn ? 'Please select Birth Place Ward/Commune.' : 'Vui lòng chọn Phường/Xã nơi đăng ký khai sinh/quê quán.', 'error');
+      document.getElementById('pobWard').focus();
+      return false;
+    }
+
     if (!document.getElementById('maritalStatus').value) {
       showToast(isEn ? 'Please select marital status.' : 'Vui lòng chọn tình trạng hôn nhân.', 'error');
       return false;
@@ -1123,14 +1243,37 @@ function validateStep(step) {
       showToast(isEn ? 'Please specify issuing place.' : 'Vui lòng nhập cơ quan cấp thẻ.', 'error');
       return false;
     }
-    if (!document.getElementById('permanentAddress').value.trim()) {
-      showToast(isEn ? 'Please enter permanent address.' : 'Vui lòng nhập đầy đủ hộ khẩu thường trú.', 'error');
+
+    // Thường trú: Tỉnh + Phường + Chi tiết (Bắt buộc)
+    if (!document.getElementById('permProvince').value) {
+      showToast(isEn ? 'Please select Permanent Address Province.' : 'Vui lòng chọn Tỉnh/Thành phố thường trú.', 'error');
       return false;
     }
-    if (!document.getElementById('currentAddress').value.trim()) {
-      showToast(isEn ? 'Please enter current address.' : 'Vui lòng nhập nơi ở hiện tại.', 'error');
+    if (!document.getElementById('permWard').value) {
+      showToast(isEn ? 'Please select Permanent Address Ward.' : 'Vui lòng chọn Phường/Xã thường trú.', 'error');
       return false;
     }
+    if (!document.getElementById('permDetail').value.trim()) {
+      showToast(isEn ? 'Please enter detailed permanent address before Ward/Commune.' : 'Vui lòng nhập địa chỉ chi tiết trước Phường/Xã của Hộ khẩu thường trú.', 'error');
+      document.getElementById('permDetail').focus();
+      return false;
+    }
+
+    // Nơi ở hiện tại: Tỉnh + Phường + Chi tiết (Bắt buộc)
+    if (!document.getElementById('currProvince').value) {
+      showToast(isEn ? 'Please select Current Address Province.' : 'Vui lòng chọn Tỉnh/Thành phố nơi ở hiện tại.', 'error');
+      return false;
+    }
+    if (!document.getElementById('currWard').value) {
+      showToast(isEn ? 'Please select Current Address Ward.' : 'Vui lòng chọn Phường/Xã nơi ở hiện tại.', 'error');
+      return false;
+    }
+    if (!document.getElementById('currDetail').value.trim()) {
+      showToast(isEn ? 'Please enter detailed current address before Ward/Commune.' : 'Vui lòng nhập địa chỉ chi tiết trước Phường/Xã của nơi ở hiện tại.', 'error');
+      document.getElementById('currDetail').focus();
+      return false;
+    }
+
     const phone = document.getElementById('phone').value.trim();
     if (!/^(0|\+84)[0-9]{9}$/.test(phone)) {
       showToast(isEn ? 'Invalid Vietnam phone number format (10 digits).' : 'Số điện thoại chưa đúng định dạng số Việt Nam (10 số).', 'error');
@@ -1222,7 +1365,7 @@ function validateStep(step) {
     }
 
     if (!APP_STATE.uploadedFilesData['CCCD']) {
-      showToast(isEn ? 'ID Card / Passport copy is mandatory.' : 'Bạn chưa tải hồ sơ: Bản sao CCCD (Bắt buộc).', 'error');
+      showToast(isEn ? 'ID Card / Passport copy is mandatory.' : 'Bạn chưa tải hồ sơ: Bản sao CCCD / Thẻ Căn cước (Bắt buộc).', 'error');
       return false;
     }
 
@@ -1247,6 +1390,17 @@ function validateStep(step) {
 }
 
 // ========================================================================
+// FORMAT ADDRESS STRING
+// ========================================================================
+function buildFullAddress(detail, ward, province) {
+  const parts = [];
+  if (detail && detail.trim()) parts.push(detail.trim());
+  if (ward && ward.trim()) parts.push(ward.trim());
+  if (province && province.trim()) parts.push(province.trim());
+  return parts.join(', ');
+}
+
+// ========================================================================
 // REVIEW SCREEN RENDERING
 // ========================================================================
 function renderReviewData() {
@@ -1264,7 +1418,7 @@ function renderReviewData() {
       <div class="review-body">
         <div class="review-item"><span class="review-label">${isEn ? 'Full Name' : 'Họ và tên'}</span><span class="review-value">${payload.fullName}</span></div>
         <div class="review-item"><span class="review-label">${isEn ? 'Gender / DOB' : 'Giới tính / Ngày sinh'}</span><span class="review-value">${payload.gender} - ${payload.dob}</span></div>
-        <div class="review-item col-span-2"><span class="review-label">${isEn ? 'Place of Birth' : 'Nơi sinh'}</span><span class="review-value">${payload.pob}</span></div>
+        <div class="review-item col-span-2"><span class="review-label">${isEn ? 'Place of Birth Registration / Native Place' : 'Nơi ĐK khai sinh / Quê quán (sau sáp nhập)'}</span><span class="review-value">${payload.pob}</span></div>
         <div class="review-item col-span-2"><span class="review-label">${isEn ? 'Marital / Nationality / Ethnicity' : 'Hôn nhân / Quốc tịch / Dân tộc'}</span><span class="review-value">${payload.maritalStatus} - ${payload.nationality} - ${payload.ethnicity}</span></div>
       </div>
     </div>
@@ -1278,8 +1432,8 @@ function renderReviewData() {
       <div class="review-body">
         <div class="review-item"><span class="review-label">${isEn ? 'ID Type / Number' : 'Loại thẻ / Số thẻ'}</span><span class="review-value">${payload.idCardType} - ${payload.idNumber}</span></div>
         <div class="review-item"><span class="review-label">${isEn ? 'Issue Date / Place' : 'Ngày cấp / Nơi cấp'}</span><span class="review-value">${payload.idIssueDate} (${payload.idIssuePlace})</span></div>
-        <div class="review-item col-span-2"><span class="review-label">${isEn ? 'Permanent Address' : 'Thường trú'}</span><span class="review-value">${payload.permanentAddress}</span></div>
-        <div class="review-item col-span-2"><span class="review-label">${isEn ? 'Current Address' : 'Nơi ở hiện tại'}</span><span class="review-value">${payload.currentAddress}</span></div>
+        <div class="review-item col-span-2"><span class="review-label">${isEn ? 'Permanent Address (Post-merger)' : 'Hộ khẩu thường trú (Sau sáp nhập)'}</span><span class="review-value">${payload.permanentAddress}</span></div>
+        <div class="review-item col-span-2"><span class="review-label">${isEn ? 'Current Residential Address (Post-merger)' : 'Nơi ở hiện tại (Sau sáp nhập)'}</span><span class="review-value">${payload.currentAddress}</span></div>
         <div class="review-item col-span-2"><span class="review-label">${isEn ? 'Phone / Email' : 'SĐT / Email'}</span><span class="review-value">${payload.phone} - ${payload.email}</span></div>
       </div>
     </div>
@@ -1328,12 +1482,12 @@ function renderReviewData() {
 }
 
 // ========================================================================
-// SUBMISSION CONTROLLER (REPLACED GOOGLE.SCRIPT.RUN WITH FETCH)
+// SUBMISSION CONTROLLER
 // ========================================================================
 function openConfirmModal() {
-  const selectedCommitment = document.querySelector('input[name="commitmentRadio"]:checked');
-  if (!selectedCommitment || selectedCommitment.value !== 'Đồng ý') {
-    showToast(APP_STATE.lang === 'en' ? 'Please agree with the commitment statement to proceed.' : 'Bạn bắt buộc phải tích chọn "Tôi đồng ý với cam kết trên" để hoàn tất.', 'error');
+  const isAgreed = document.getElementById('commitmentAgreeCheckbox').checked;
+  if (!isAgreed) {
+    showToast(APP_STATE.lang === 'en' ? 'Please agree with the commitment statements to proceed.' : 'Bạn bắt buộc phải tích chọn đồng ý với các cam kết để hoàn tất kê khai.', 'error');
     return;
   }
   document.getElementById('confirmModal').classList.add('show');
@@ -1365,7 +1519,6 @@ async function proceedFinalSubmit() {
   const payload = collectFormData();
 
   try {
-    // Dùng Content-Type text/plain để tránh kích hoạt CORS Preflight OPTIONS Request trên GAS
     const response = await fetch(GAS_API_URL, {
       method: 'POST',
       headers: {
@@ -1395,7 +1548,7 @@ async function proceedFinalSubmit() {
 }
 
 // ========================================================================
-// COLLECT FORM DATA
+// COLLECT FORM DATA (MAPPED TO 45 COLUMNS A:AS)
 // ========================================================================
 function collectFormData() {
   let finalGender = document.getElementById('gender').value;
@@ -1437,6 +1590,25 @@ function collectFormData() {
   if (finalEduLevel === 'Khác') {
     finalEduLevel = document.getElementById('otherEducationLevel').value.trim() || 'Khác';
   }
+
+  // Gom địa chỉ chuẩn hóa (Sau sáp nhập)
+  const fullPob = buildFullAddress(
+    document.getElementById('pobDetail').value,
+    document.getElementById('pobWard').value,
+    document.getElementById('pobProvince').value
+  );
+
+  const fullPermAddress = buildFullAddress(
+    document.getElementById('permDetail').value,
+    document.getElementById('permWard').value,
+    document.getElementById('permProvince').value
+  );
+
+  const fullCurrAddress = buildFullAddress(
+    document.getElementById('currDetail').value,
+    document.getElementById('currWard').value,
+    document.getElementById('currProvince').value
+  );
 
   const noExp = document.getElementById('noExpCheckbox').checked;
   const experiences = [];
@@ -1491,7 +1663,7 @@ function collectFormData() {
     fullName: document.getElementById('fullName').value.trim(),
     gender: finalGender,
     dob: document.getElementById('dob').value,
-    pob: document.getElementById('pob').value.trim(),
+    pob: fullPob, // Cột E
     maritalStatus: finalMarital,
     nationality: finalNationality,
     ethnicity: finalEthnicity,
@@ -1501,8 +1673,8 @@ function collectFormData() {
     idIssueDate: document.getElementById('idIssueDate').value,
     idExpiryDate: document.getElementById('idExpiryDate').value,
     idIssuePlace: finalIdIssuePlace,
-    permanentAddress: document.getElementById('permanentAddress').value.trim(),
-    currentAddress: document.getElementById('currentAddress').value.trim(),
+    permanentAddress: fullPermAddress, // Cột O
+    currentAddress: fullCurrAddress,   // Cột P
     phone: document.getElementById('phone').value.trim(),
     email: document.getElementById('email').value.trim(),
 
@@ -1534,12 +1706,12 @@ function collectFormData() {
     hasDependents: hasDependents,
     dependents: dependents,
     uploadedFiles: uploadedFiles,
-    commitment: document.querySelector('input[name="commitmentRadio"]:checked') ? document.querySelector('input[name="commitmentRadio"]:checked').value : 'Đồng ý'
+    commitment: document.getElementById('commitmentAgreeCheckbox').checked ? 'Đồng ý' : 'Đồng ý'
   };
 }
 
 // ========================================================================
-// AUTO SAVE & RESTORE DRAFT WITH SPECIAL DIALOG
+// AUTO SAVE & RESTORE DRAFT
 // ========================================================================
 function saveDraftToLocalStorage() {
   if (APP_STATE.currentStep <= 0 || APP_STATE.currentStep >= 9) return;
@@ -1550,7 +1722,12 @@ function saveDraftToLocalStorage() {
       gender: document.getElementById('gender').value,
       otherGender: document.getElementById('otherGender').value,
       dob: document.getElementById('dob').value,
-      pob: document.getElementById('pob').value,
+
+      // Địa chỉ nơi sinh
+      pobProvince: document.getElementById('pobProvince').value,
+      pobWard: document.getElementById('pobWard').value,
+      pobDetail: document.getElementById('pobDetail').value,
+
       maritalStatus: document.getElementById('maritalStatus').value,
       otherMarital: document.getElementById('otherMarital').value,
       nationality: document.getElementById('nationality').value,
@@ -1559,6 +1736,7 @@ function saveDraftToLocalStorage() {
       otherEthnicity: document.getElementById('otherEthnicity').value,
       religion: document.getElementById('religion').value,
       otherReligion: document.getElementById('otherReligion').value,
+      
       idCardType: document.getElementById('idCardType').value,
       otherIdCardType: document.getElementById('otherIdCardType').value,
       idNumber: document.getElementById('idNumber').value,
@@ -1566,8 +1744,16 @@ function saveDraftToLocalStorage() {
       idExpiryDate: document.getElementById('idExpiryDate').value,
       idIssuePlace: document.getElementById('idIssuePlace').value,
       otherIdIssuePlace: document.getElementById('otherIdIssuePlace').value,
-      permanentAddress: document.getElementById('permanentAddress').value,
-      currentAddress: document.getElementById('currentAddress').value,
+      
+      // Thường trú & Hiện tại
+      permProvince: document.getElementById('permProvince').value,
+      permWard: document.getElementById('permWard').value,
+      permDetail: document.getElementById('permDetail').value,
+
+      currProvince: document.getElementById('currProvince').value,
+      currWard: document.getElementById('currWard').value,
+      currDetail: document.getElementById('currDetail').value,
+
       phone: document.getElementById('phone').value,
       email: document.getElementById('email').value,
       workingType: document.getElementById('workingType').value,
@@ -1578,13 +1764,13 @@ function saveDraftToLocalStorage() {
       major: document.getElementById('major').value,
       gradYear: document.getElementById('gradYear').value
     };
-    localStorage.setItem('hr_onboarding_draft', JSON.stringify(draft));
+    localStorage.setItem('hr_onboarding_draft_v3', JSON.stringify(draft));
   } catch(e) {}
 }
 
 function checkAndPromptDraftModal() {
   try {
-    const raw = localStorage.getItem('hr_onboarding_draft');
+    const raw = localStorage.getItem('hr_onboarding_draft_v3');
     if (!raw) return;
     const draft = JSON.parse(raw);
     if (draft && (draft.fullName || draft.step > 0)) {
@@ -1610,7 +1796,7 @@ function applyAndResumeDraft() {
     if (draft.otherGender) document.getElementById('otherGender').value = draft.otherGender;
   }
   document.getElementById('dob').value = draft.dob || '';
-  document.getElementById('pob').value = draft.pob || '';
+
   if (draft.maritalStatus) {
     document.getElementById('maritalStatus').value = draft.maritalStatus;
     handleDropdownWithCustom(document.getElementById('maritalStatus'), 'otherMaritalGroup');
@@ -1646,8 +1832,8 @@ function applyAndResumeDraft() {
     if (draft.otherIdIssuePlace) document.getElementById('otherIdIssuePlace').value = draft.otherIdIssuePlace;
   }
 
-  document.getElementById('permanentAddress').value = draft.permanentAddress || '';
-  document.getElementById('currentAddress').value = draft.currentAddress || '';
+  restoreDraftAddressFields(draft);
+
   document.getElementById('phone').value = draft.phone || '';
   document.getElementById('email').value = draft.email || '';
 
@@ -1668,6 +1854,30 @@ function applyAndResumeDraft() {
   showToast('Đã khôi phục thành công bản kê khai!', 'success');
 }
 
+function restoreDraftAddressFields(draft) {
+  if (!draft) return;
+
+  const restoreGroup = (prefix, provVal, wardVal, detailVal) => {
+    const provSelect = document.getElementById(prefix + 'Province');
+    const wardSelect = document.getElementById(prefix + 'Ward');
+    const detailInput = document.getElementById(prefix + 'Detail');
+
+    if (detailInput && detailVal !== undefined) detailInput.value = detailVal;
+
+    if (provSelect && provVal) {
+      provSelect.value = provVal;
+      onProvinceChange(prefix);
+      if (wardSelect && wardVal) {
+        wardSelect.value = wardVal;
+      }
+    }
+  };
+
+  restoreGroup('pob', draft.pobProvince, draft.pobWard, draft.pobDetail);
+  restoreGroup('perm', draft.permProvince, draft.permWard, draft.permDetail);
+  restoreGroup('curr', draft.currProvince, draft.currWard, draft.currDetail);
+}
+
 function discardDraftAndStartNew() {
   clearLocalStorageDraft();
   APP_STATE.pendingDraftData = null;
@@ -1677,7 +1887,7 @@ function discardDraftAndStartNew() {
 
 function clearLocalStorageDraft() {
   try {
-    localStorage.removeItem('hr_onboarding_draft');
+    localStorage.removeItem('hr_onboarding_draft_v3');
   } catch(e) {}
 }
 
