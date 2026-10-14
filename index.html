@@ -7,7 +7,7 @@
   <!-- Google Fonts Optimized Loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     /* ==========================================================================
@@ -16,23 +16,25 @@
     :root {
       --primary: #0f4c81;
       --primary-dark: #0a3258;
-      --primary-light: #e8f1f8;
+      --primary-light: #eef6fc;
+      --primary-border: #bfdbfe;
       --accent-gold: #f59e0b;
       --accent-gold-light: #fef3c7;
       --accent-rose: #f43f5e;
       --accent-rose-light: #ffe4e6;
       --success: #10b981;
       --success-light: #d1fae5;
-      --text-main: #1e293b;
+      --text-main: #0f172a;
       --text-muted: #64748b;
       --border-color: #cbd5e1;
+      --border-focus: #3b82f6;
       --bg-light: #f8fafc;
       --bg-white: #ffffff;
-      --card-shadow: 0 10px 25px -5px rgba(15, 76, 129, 0.08), 0 8px 10px -6px rgba(15, 76, 129, 0.04);
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 16px;
-      --font-family: 'Be Vietnam Pro', 'Inter', Arial, sans-serif;
+      --card-shadow: 0 12px 30px -6px rgba(15, 76, 129, 0.08), 0 8px 12px -6px rgba(15, 76, 129, 0.04);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
       --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -44,9 +46,9 @@
 
     body {
       font-family: var(--font-family);
-      background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+      background: radial-gradient(circle at 10% 10%, #f0f7ff 0%, #e2eaf2 100%);
       color: var(--text-main);
-      font-size: 15px;
+      font-size: 14.5px;
       line-height: 1.6;
       min-height: 100vh;
       display: flex;
@@ -55,39 +57,72 @@
 
     /* HEADER */
     .portal-header {
-      background: var(--bg-white);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border-color);
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      box-shadow: 0 4px 16px rgba(15, 76, 129, 0.04);
     }
     .header-container {
-      max-width: 1080px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 10px 20px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 14px;
     }
     .header-brand {
       display: flex;
       align-items: center;
       gap: 14px;
     }
-    .brand-logo {
-      height: 40px;
-      width: auto;
-      max-width: 140px;
-      object-fit: contain;
+    .brand-logo-wrap {
+      display: flex;
+      align-items: center;
+      position: relative;
     }
+    .brand-logo {
+      height: 42px;
+      width: auto;
+      max-width: 160px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
+    }
+
+    /* Vector Monogram Emblem fallback */
+    .brand-badge-vector {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 1px;
+      height: 42px;
+      padding: 0 14px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 3px 10px rgba(15, 76, 129, 0.25);
+    }
+
     .brand-title {
-      font-size: 16px;
-      font-weight: 700;
+      font-size: 16.5px;
+      font-weight: 800;
       color: var(--primary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      display: flex;
+      flex-direction: column;
+    }
+    .brand-title-sub {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: none;
+      letter-spacing: 0;
     }
     
     .header-right {
@@ -103,12 +138,11 @@
       padding: 3px;
       border-radius: 30px;
       box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
-      position: relative;
     }
     .lang-btn-premium {
       border: none;
       background: transparent;
-      padding: 4px 12px;
+      padding: 5px 13px;
       border-radius: 25px;
       font-size: 12px;
       font-weight: 700;
@@ -118,7 +152,6 @@
       gap: 7px;
       color: var(--text-muted);
       transition: var(--transition);
-      z-index: 2;
     }
     .lang-btn-premium.active {
       background: var(--bg-white);
@@ -126,8 +159,8 @@
       box-shadow: 0 3px 8px rgba(15, 76, 129, 0.18);
     }
     .flag-icon {
-      width: 20px;
-      height: 14px;
+      width: 18px;
+      height: 13px;
       border-radius: 2px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.25);
       object-fit: cover;
@@ -137,20 +170,20 @@
     .step-badge {
       background: var(--primary-light);
       color: var(--primary);
-      padding: 5px 12px;
+      padding: 5px 14px;
       border-radius: 20px;
       font-weight: 700;
       font-size: 12.5px;
-      border: 1px solid rgba(15, 76, 129, 0.15);
+      border: 1px solid var(--primary-border);
       white-space: nowrap;
     }
 
     /* MAIN CONTAINER */
     .portal-main {
       flex: 1;
-      max-width: 1080px;
+      max-width: 1100px;
       width: 100%;
-      margin: 20px auto;
+      margin: 22px auto;
       padding: 0 16px;
     }
 
@@ -159,7 +192,7 @@
       background: var(--bg-white);
       border-radius: var(--radius-md);
       padding: 16px 20px;
-      margin-bottom: 20px;
+      margin-bottom: 22px;
       box-shadow: var(--card-shadow);
       display: none;
     }
@@ -185,7 +218,7 @@
       height: 3px;
       background: var(--primary);
       z-index: 2;
-      transition: width 0.3s ease;
+      transition: width 0.35s ease;
       width: 0%;
     }
     .step-node {
@@ -235,16 +268,16 @@
     .form-card {
       background: var(--bg-white);
       border-radius: var(--radius-lg);
-      padding: 30px;
+      padding: 34px;
       box-shadow: var(--card-shadow);
-      border: 1px solid rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.8);
     }
     .form-step {
       display: none;
     }
     .form-step.active {
       display: block;
-      animation: fadeIn 0.25s ease-in-out;
+      animation: fadeIn 0.28s ease-in-out;
     }
 
     @keyframes fadeIn {
@@ -253,13 +286,13 @@
     }
 
     .step-header {
-      margin-bottom: 22px;
+      margin-bottom: 24px;
       padding-bottom: 14px;
       border-bottom: 2px solid var(--primary-light);
     }
     .step-title {
-      font-size: 20px;
-      font-weight: 700;
+      font-size: 21px;
+      font-weight: 800;
       color: var(--primary);
       display: flex;
       align-items: center;
@@ -268,7 +301,25 @@
     .step-description {
       color: var(--text-muted);
       font-size: 13.5px;
-      margin-top: 4px;
+      margin-top: 5px;
+    }
+
+    /* ADDRESS GROUP CONTAINER */
+    .address-section-box {
+      background: #fbfdff;
+      border: 1.5px solid #e0eaf4;
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+    .address-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 14px;
+      margin-bottom: 10px;
     }
 
     /* FORM CONTROLS */
@@ -310,7 +361,7 @@
     }
     .form-control:focus {
       outline: none;
-      border-color: var(--primary);
+      border-color: var(--border-focus);
       box-shadow: 0 0 0 3px var(--primary-light);
     }
     textarea.form-control {
@@ -320,7 +371,7 @@
     .form-helper {
       font-size: 12px;
       color: var(--text-muted);
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     /* NOTICE BOXES */
@@ -329,7 +380,7 @@
       border-left: 4px solid var(--primary);
       padding: 12px 16px;
       border-radius: var(--radius-sm);
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       font-size: 13px;
       color: #1e3a8a;
       line-height: 1.55;
@@ -338,6 +389,37 @@
       color: var(--primary);
       font-weight: 700;
       text-decoration: underline;
+    }
+
+    .address-note-callout {
+      background: #f0fdf4;
+      border-left: 4px solid var(--success);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 14px;
+      font-size: 12.5px;
+      color: #166534;
+      line-height: 1.5;
+    }
+
+    .privacy-commitment-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #edf4fa 100%);
+      border: 1.5px solid var(--primary-border);
+      border-radius: var(--radius-md);
+      padding: 20px 22px;
+      margin-bottom: 22px;
+    }
+    .privacy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 11.5px;
+      font-weight: 700;
+      margin-bottom: 10px;
     }
 
     .physical-doc-notice {
@@ -352,10 +434,6 @@
       gap: 12px;
       font-size: 13.5px;
       line-height: 1.55;
-    }
-    .physical-doc-notice .notice-icon {
-      font-size: 22px;
-      line-height: 1;
     }
 
     /* DYNAMIC TABLES */
@@ -374,20 +452,20 @@
     .styled-table th {
       background: #f1f5f9;
       color: #475569;
-      padding: 9px 12px;
-      font-weight: 600;
+      padding: 10px 12px;
+      font-weight: 700;
       text-align: left;
       border-bottom: 1px solid var(--border-color);
       white-space: nowrap;
     }
     .styled-table td {
-      padding: 7px 10px;
+      padding: 8px 10px;
       border-bottom: 1px solid #f1f5f9;
       vertical-align: middle;
     }
     .table-input {
       width: 100%;
-      padding: 6px 9px;
+      padding: 7px 10px;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       font-size: 13px;
@@ -397,7 +475,7 @@
       background: var(--primary-light);
       color: var(--primary);
       border: 1px dashed var(--primary);
-      padding: 7px 15px;
+      padding: 8px 16px;
       border-radius: var(--radius-sm);
       font-weight: 600;
       cursor: pointer;
@@ -415,15 +493,12 @@
       background: var(--accent-rose-light);
       color: var(--accent-rose);
       border: none;
-      padding: 5px 9px;
+      padding: 5px 10px;
       border-radius: var(--radius-sm);
       cursor: pointer;
       font-weight: 600;
       font-size: 12px;
       transition: var(--transition);
-    }
-    .btn-action-del:hover {
-      background: #fecdd3;
     }
 
     /* FILE UPLOAD CARDS */
@@ -436,7 +511,7 @@
     .upload-card {
       border: 1.5px dashed var(--border-color);
       border-radius: var(--radius-md);
-      padding: 16px;
+      padding: 18px;
       background: var(--bg-light);
       transition: var(--transition);
       position: relative;
@@ -450,7 +525,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       gap: 8px;
     }
     .upload-card-title {
@@ -463,9 +538,9 @@
     }
     .upload-req-tag {
       font-size: 11px;
-      padding: 2px 7px;
+      padding: 3px 8px;
       border-radius: 12px;
-      font-weight: 600;
+      font-weight: 700;
       white-space: nowrap;
     }
     .req-tag-mandatory {
@@ -488,7 +563,7 @@
     .btn-choose-file {
       background: #fff;
       border: 1px solid var(--border-color);
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: var(--radius-sm);
       font-size: 12.5px;
       font-weight: 600;
@@ -496,10 +571,6 @@
       cursor: pointer;
       display: inline-block;
       transition: var(--transition);
-    }
-    .btn-choose-file:hover {
-      background: var(--primary-light);
-      border-color: var(--primary);
     }
 
     /* REVIEW STYLES */
@@ -530,9 +601,6 @@
       cursor: pointer;
       font-size: 12.5px;
     }
-    .btn-edit-jump:hover {
-      text-decoration: underline;
-    }
     .review-body {
       padding: 14px 16px;
       display: grid;
@@ -551,7 +619,7 @@
     }
     .review-value {
       color: var(--text-main);
-      font-weight: 500;
+      font-weight: 600;
       margin-top: 2px;
     }
 
@@ -560,16 +628,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 28px;
-      padding-top: 18px;
+      margin-top: 30px;
+      padding-top: 20px;
       border-top: 1px solid #e2e8f0;
     }
     .btn {
-      padding: 10px 22px;
+      padding: 10px 24px;
       border-radius: var(--radius-sm);
       font-family: inherit;
-      font-size: 13.5px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
       transition: var(--transition);
       display: inline-flex;
@@ -583,7 +651,7 @@
     }
     .btn-primary:hover {
       background: var(--primary-dark);
-      box-shadow: 0 4px 12px rgba(15, 76, 129, 0.25);
+      box-shadow: 0 4px 14px rgba(15, 76, 129, 0.28);
     }
     .btn-secondary {
       background: #e2e8f0;
@@ -598,46 +666,43 @@
     }
     .btn-success:hover {
       background: #059669;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-    }
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      pointer-events: none;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.28);
     }
 
     /* WELCOME SCREEN */
     .welcome-card {
       text-align: center;
-      padding: 36px 16px;
+      padding: 40px 18px;
     }
     .welcome-logo {
-      height: 75px;
+      height: 78px;
       margin-bottom: 20px;
       object-fit: contain;
     }
     .welcome-title {
-      font-size: 26px;
+      font-size: 27px;
       font-weight: 800;
       color: var(--primary);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .welcome-subtitle {
       font-size: 15px;
       color: var(--text-muted);
-      max-width: 640px;
-      margin: 0 auto 26px;
+      max-width: 680px;
+      margin: 0 auto 28px;
+      line-height: 1.65;
     }
     .welcome-badge-group {
       display: flex;
       justify-content: center;
       gap: 14px;
-      margin-bottom: 32px;
+      margin-bottom: 34px;
       flex-wrap: wrap;
     }
     .welcome-badge {
       background: var(--primary-light);
-      padding: 7px 15px;
+      border: 1px solid var(--primary-border);
+      padding: 8px 16px;
       border-radius: 20px;
       font-size: 12.5px;
       font-weight: 600;
@@ -650,30 +715,31 @@
     /* SUCCESS SCREEN */
     .success-card {
       text-align: center;
-      padding: 45px 16px;
+      padding: 48px 18px;
     }
     .success-icon-wrapper {
-      width: 70px;
-      height: 70px;
+      width: 74px;
+      height: 74px;
       background: var(--success-light);
       color: var(--success);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 34px;
+      font-size: 36px;
       margin: 0 auto 20px;
     }
     .success-code-tag {
       background: #f1f5f9;
       border: 1px dashed var(--border-color);
-      padding: 6px 14px;
+      padding: 6px 16px;
       border-radius: var(--radius-sm);
       display: inline-block;
       font-family: monospace;
       font-weight: 700;
       margin: 16px 0;
       color: var(--primary);
+      font-size: 15px;
     }
 
     /* MODAL BASE */
@@ -702,7 +768,7 @@
       border-radius: var(--radius-lg);
       max-width: 480px;
       width: 90%;
-      padding: 26px;
+      padding: 28px;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
       transform: scale(0.92);
       transition: var(--transition);
@@ -728,7 +794,6 @@
       gap: 12px;
     }
 
-    /* DRAFT DIALOG SPECIAL STYLES */
     .draft-badge-info {
       background: #eff6ff;
       border-left: 4px solid var(--primary);
@@ -747,7 +812,7 @@
       right: 0;
       bottom: 0;
       background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(5px);
+      backdrop-filter: blur(6px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -756,13 +821,13 @@
       display: none;
     }
     .spinner {
-      width: 46px;
-      height: 46px;
+      width: 48px;
+      height: 48px;
       border: 4px solid var(--primary-light);
       border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
     @keyframes spin {
       to { transform: rotate(360deg); }
@@ -791,10 +856,10 @@
     .toast {
       background: #1e293b;
       color: #fff;
-      padding: 11px 18px;
+      padding: 12px 20px;
       border-radius: var(--radius-sm);
-      font-size: 13px;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15);
+      font-size: 13.5px;
+      box-shadow: 0 10px 20px -3px rgba(0,0,0,0.2);
       border-left: 4px solid var(--accent-gold);
       animation: slideInRight 0.3s ease forwards;
     }
@@ -813,7 +878,7 @@
     .portal-footer {
       background: var(--bg-white);
       border-top: 1px solid var(--border-color);
-      padding: 16px 20px;
+      padding: 18px 20px;
       text-align: center;
       font-size: 12px;
       color: var(--text-muted);
@@ -838,11 +903,11 @@
         display: none;
       }
       .form-card {
-        padding: 20px 14px;
+        padding: 22px 16px;
       }
       .step-actions {
         flex-direction: column-reverse;
-        gap: 10px;
+        gap: 12px;
       }
       .step-actions .btn {
         width: 100%;
@@ -896,8 +961,14 @@
   <header class="portal-header">
     <div class="header-container">
       <div class="header-brand">
-        <img id="headerLogo" src="" alt="Company Logo" class="brand-logo" onerror="this.style.display='none'">
-        <span class="brand-title" data-i18n="app_title">Kê Khai Thông Tin Nhân Sự</span>
+        <div class="brand-logo-wrap">
+          <img id="headerLogo" src="" alt="Company Logo" class="brand-logo">
+          <div id="headerBrandBadge" class="brand-badge-vector">EDUCO HR</div>
+        </div>
+        <div class="brand-title">
+          <span data-i18n="app_title">Kê Khai Thông Tin Nhân Sự</span>
+          <span class="brand-title-sub">HR Portal</span>
+        </div>
       </div>
       
       <div class="header-right">
@@ -939,7 +1010,7 @@
       <div class="steps-timeline">
         <div id="timelineProgress" class="steps-timeline-progress"></div>
         <div class="step-node" data-step="1"><div class="step-circle">1</div><div class="step-label" data-i18n="step_nav_1">Cá nhân</div></div>
-        <div class="step-node" data-step="2"><div class="step-circle">2</div><div class="step-label" data-i18n="step_nav_2">CCCD & Nơi ở</div></div>
+        <div class="step-node" data-step="2"><div class="step-circle">2</div><div class="step-label" data-i18n="step_nav_2">Định danh & Nơi ở</div></div>
         <div class="step-node" data-step="3"><div class="step-circle">3</div><div class="step-label" data-i18n="step_nav_3">Công việc</div></div>
         <div class="step-node" data-step="4"><div class="step-circle">4</div><div class="step-label" data-i18n="step_nav_4">Học vấn</div></div>
         <div class="step-node" data-step="5"><div class="step-circle">5</div><div class="step-label" data-i18n="step_nav_5">Thuế & Bank</div></div>
@@ -957,15 +1028,18 @@
         <!-- STEP 0: WELCOME -->
         <div id="step-0" class="form-step active">
           <div class="welcome-card">
-            <img id="welcomeLogo" src="" alt="Logo" class="welcome-logo" onerror="this.style.display='none'">
+            <div style="display: inline-block; margin-bottom: 20px;">
+              <img id="welcomeLogo" src="" alt="Logo" class="welcome-logo">
+              <div id="welcomeBrandBadge" class="brand-badge-vector" style="font-size: 24px; height: 60px; padding: 0 24px;">EDUCO GROUP</div>
+            </div>
             <h1 class="welcome-title" data-i18n="welcome_title">THÔNG TIN KÊ KHAI NHÂN SỰ</h1>
             <p class="welcome-subtitle" data-i18n="welcome_subtitle">Chào mừng bạn gia nhập đội ngũ nhân sự! Vui lòng hoàn thành các bước kê khai thông tin lý lịch và đính kèm hồ sơ theo quy định để chúng tôi hoàn thiện thủ tục tiếp nhận.</p>
             <div class="welcome-badge-group">
               <div class="welcome-badge" data-i18n="welcome_badge_time">⏱ Thời gian hoàn tất: ~10 phút</div>
-              <div class="welcome-badge" data-i18n="welcome_badge_security">🔒 Bảo mật tuyệt đối</div>
-              <div class="welcome-badge" data-i18n="welcome_badge_prep">📁 Chuẩn bị sẵn CCCD, Ảnh thẻ & Bằng cấp</div>
+              <div class="welcome-badge" data-i18n="welcome_badge_security">🔒 Bảo mật dữ liệu tuyệt đối (NĐ 13/2023/NĐ-CP)</div>
+              <div class="welcome-badge" data-i18n="welcome_badge_prep">📁 Chuẩn bị sẵn CCCD/Căn cước, Ảnh thẻ & Bằng cấp</div>
             </div>
-            <button type="button" class="btn btn-primary" style="padding: 13px 36px; font-size: 15px;" onclick="goToStep(1)">
+            <button type="button" class="btn btn-primary" style="padding: 13px 38px; font-size: 15px;" onclick="goToStep(1)">
               <span data-i18n="btn_start">Bắt đầu kê khai</span> &rarr;
             </button>
           </div>
@@ -975,7 +1049,7 @@
         <div id="step-1" class="form-step">
           <div class="step-header">
             <h2 class="step-title" data-i18n="step1_title">Bước 1: Thông tin cá nhân cơ bản</h2>
-            <div class="step-description" data-i18n="step1_desc">Vui lòng nhập thông tin cơ bản chính xác theo hộ tịch/giấy khai sinh.</div>
+            <div class="step-description" data-i18n="step1_desc">Vui lòng nhập thông tin cơ bản chính xác theo hộ tịch/giấy khai sinh và CSDL Quốc gia về dân cư.</div>
           </div>
           <div class="form-grid">
             <div class="form-group col-span-2">
@@ -1000,9 +1074,34 @@
               <input type="date" id="dob" class="form-control" required>
             </div>
 
-            <div class="form-group col-span-2">
-              <label class="form-label"><span data-i18n="label_pob">Nơi sinh (Ghi đầy đủ theo Giấy khai sinh)</span> <span class="required-star">*</span></label>
-              <input type="text" id="pob" class="form-control" data-i18n-ph="ph_pob" placeholder="VD: Số 46, Phương Mai, Đống Đa, Hà Nội" required>
+            <!-- NƠI ĐĂNG KÝ KHAI SINH / QUÊ QUÁN (THEO ĐỊA CHỈ SAU SÁP NHẬP) -->
+            <div class="address-section-box col-span-2">
+              <div class="address-section-header">
+                <span>📍</span>
+                <span data-i18n="label_pob_group">Nơi đăng ký khai sinh / Quê quán</span>
+                <span class="required-star">*</span>
+              </div>
+              <div class="address-note-callout" data-i18n="helper_pob_note">
+                ℹ️ Lưu ý: Lấy thông tin từ mục Quê quán hoặc Nơi sinh trên VNeID / Căn cước công dân. Chọn địa giới hành chính sau khi sáp nhập. Phần địa chỉ chi tiết cụ thể có thể để trống nếu không có.
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label"><span data-i18n="label_pob_province">Tỉnh / Thành phố</span> <span class="required-star">*</span></label>
+                  <select id="pobProvince" class="form-control" onchange="onProvinceChange('pob')" required>
+                    <option value="">-- Chọn Tỉnh / Thành phố --</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label"><span data-i18n="label_pob_ward">Phường / Xã</span> <span class="required-star">*</span></label>
+                  <select id="pobWard" class="form-control" disabled required>
+                    <option value="">-- Chọn Phường / Xã --</option>
+                  </select>
+                </div>
+                <div class="form-group col-span-2">
+                  <label class="form-label"><span data-i18n="label_pob_detail">Địa chỉ chi tiết (Không bắt buộc)</span></label>
+                  <input type="text" id="pobDetail" class="form-control" data-i18n-ph="ph_pob_detail" placeholder="Số nhà, ngõ/ngách, đường (Nếu có - có thể để trống)">
+                </div>
+              </div>
             </div>
 
             <!-- Tình trạng hôn nhân + Custom -->
@@ -1064,10 +1163,10 @@
         <div id="step-2" class="form-step">
           <div class="step-header">
             <h2 class="step-title" data-i18n="step2_title">Bước 2: Định danh, Nơi ở & Liên lạc</h2>
-            <div class="step-description" data-i18n="step2_desc">Các thông tin phục vụ ký kết hợp đồng và bảo hiểm xã hội.</div>
+            <div class="step-description" data-i18n="step2_desc">Các thông tin phục vụ ký kết hợp đồng, đăng ký thuế và bảo hiểm xã hội.</div>
           </div>
           <div class="form-grid">
-            <!-- Loại thẻ định danh + Custom -->
+            <!-- Loại thẻ định danh (Đã bỏ CMND 9 số) -->
             <div class="form-group">
               <label class="form-label"><span data-i18n="label_id_type">Loại thẻ định danh</span> <span class="required-star">*</span></label>
               <select id="idCardType" class="form-control" onchange="handleDropdownWithCustom(this, 'otherIdCardTypeGroup')" required>
@@ -1076,12 +1175,12 @@
             </div>
             <div id="otherIdCardTypeGroup" class="form-group" style="display: none;">
               <label class="form-label"><span data-i18n="label_other_id_type">Loại thẻ khác</span> <span class="required-star">*</span></label>
-              <input type="text" id="otherIdCardType" class="form-control" data-i18n-ph="ph_other_id_type" placeholder="VD: Hộ chiếu / Thẻ tạm trú">
+              <input type="text" id="otherIdCardType" class="form-control" data-i18n-ph="ph_other_id_type" placeholder="VD: Thẻ căn cước công dân nước ngoài / Tạm trú">
             </div>
 
             <div class="form-group">
               <label class="form-label"><span data-i18n="label_id_number">Số thẻ định danh</span> <span class="required-star">*</span></label>
-              <input type="text" id="idNumber" class="form-control" data-i18n-ph="ph_id_number" placeholder="Nhập số CCCD/CMND" maxlength="20" required>
+              <input type="text" id="idNumber" class="form-control" data-i18n-ph="ph_id_number" placeholder="Nhập số CCCD/Căn cước/Hộ chiếu" maxlength="20" required>
             </div>
 
             <div class="form-group">
@@ -1106,16 +1205,64 @@
               <input type="text" id="otherIdIssuePlace" class="form-control" data-i18n-ph="ph_other_id_issue_place" placeholder="Nhập đầy đủ tên cơ quan cấp thẻ">
             </div>
 
-            <div class="form-group col-span-2">
-              <label class="form-label"><span data-i18n="label_perm_addr">Hộ khẩu thường trú</span> <span class="required-star">*</span></label>
-              <textarea id="permanentAddress" class="form-control" data-i18n-ph="ph_perm_addr" placeholder="Số nhà ..., đường/phố ..., thôn/xã/phường ..., quận/huyện ..., tỉnh/thành phố ..." required></textarea>
-              <div class="form-helper" data-i18n="helper_perm_addr">Ghi chi tiết theo thông tin trên VNEID</div>
+            <!-- HỘ KHẨU THƯỜNG TRÚ (DROPDOWN + CHI TIẾT BẮT BUỘC) -->
+            <div class="address-section-box col-span-2">
+              <div class="address-section-header">
+                <span>🏠</span>
+                <span data-i18n="label_perm_addr_group">Hộ khẩu thường trú</span>
+                <span class="required-star">*</span>
+              </div>
+              <div class="address-note-callout" data-i18n="helper_addr_merged_note">
+                ℹ️ Lưu ý địa chỉ: Kê khai theo địa chỉ hành chính sau khi sáp nhập mới nhất (theo thông tin hiển thị trên VNeID / CCCD / Thẻ Căn cước). Ô chi tiết bắt buộc ghi đầy đủ các cấp đến trước Phường/Xã (số nhà, ngõ, đường, tổ/thôn/xóm).
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label"><span data-i18n="label_addr_province">Tỉnh / Thành phố</span> <span class="required-star">*</span></label>
+                  <select id="permProvince" class="form-control" onchange="onProvinceChange('perm')" required>
+                    <option value="">-- Chọn Tỉnh / Thành phố --</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label"><span data-i18n="label_addr_ward">Phường / Xã</span> <span class="required-star">*</span></label>
+                  <select id="permWard" class="form-control" disabled required>
+                    <option value="">-- Chọn Phường / Xã --</option>
+                  </select>
+                </div>
+                <div class="form-group col-span-2">
+                  <label class="form-label"><span data-i18n="label_addr_detail">Địa chỉ chi tiết trước Phường/Xã (Số nhà, đường, ngõ, thôn/xóm/tổ)</span> <span class="required-star">*</span></label>
+                  <textarea id="permDetail" class="form-control" data-i18n-ph="ph_addr_detail" placeholder="Số nhà, ngõ, đường/phố, thôn/xóm/tổ (ghi rõ cấp trước Phường/Xã)" required></textarea>
+                </div>
+              </div>
             </div>
 
-            <div class="form-group col-span-2">
-              <label class="form-label"><span data-i18n="label_curr_addr">Nơi ở hiện tại</span> <span class="required-star">*</span></label>
-              <textarea id="currentAddress" class="form-control" data-i18n-ph="ph_curr_addr" placeholder="Ghi chi tiết địa chỉ nơi đang cư trú thực tế..." required></textarea>
-              <div class="form-helper" data-i18n="helper_curr_addr">Tương tự hộ khẩu thường trú, ghi rõ số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố.</div>
+            <!-- NƠI Ở HIỆN TẠI (DROPDOWN + CHI TIẾT BẮT BUỘC) -->
+            <div class="address-section-box col-span-2">
+              <div class="address-section-header">
+                <span>📍</span>
+                <span data-i18n="label_curr_addr_group">Nơi ở hiện tại (Cư trú thực tế)</span>
+                <span class="required-star">*</span>
+              </div>
+              <div class="address-note-callout" data-i18n="helper_addr_merged_note">
+                ℹ️ Lưu ý địa chỉ: Kê khai theo địa chỉ hành chính sau khi sáp nhập mới nhất (theo thông tin hiển thị trên VNeID / CCCD / Thẻ Căn cước). Ô chi tiết bắt buộc ghi đầy đủ các cấp đến trước Phường/Xã (số nhà, ngõ, đường, tổ/thôn/xóm).
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label"><span data-i18n="label_addr_province">Tỉnh / Thành phố</span> <span class="required-star">*</span></label>
+                  <select id="currProvince" class="form-control" onchange="onProvinceChange('curr')" required>
+                    <option value="">-- Chọn Tỉnh / Thành phố --</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label"><span data-i18n="label_addr_ward">Phường / Xã</span> <span class="required-star">*</span></label>
+                  <select id="currWard" class="form-control" disabled required>
+                    <option value="">-- Chọn Phường / Xã --</option>
+                  </select>
+                </div>
+                <div class="form-group col-span-2">
+                  <label class="form-label"><span data-i18n="label_addr_detail">Địa chỉ chi tiết trước Phường/Xã (Số nhà, đường, ngõ, thôn/xóm/tổ)</span> <span class="required-star">*</span></label>
+                  <textarea id="currDetail" class="form-control" data-i18n-ph="ph_addr_detail" placeholder="Số nhà, ngõ, đường/phố, thôn/xóm/tổ (ghi rõ cấp trước Phường/Xã)" required></textarea>
+                </div>
+              </div>
             </div>
 
             <div class="form-group">
@@ -1394,10 +1541,10 @@
               <div class="upload-file-status" id="status_Anh_the" data-i18n="status_no_file">Chưa chọn tệp</div>
             </div>
 
-            <!-- CCCD (BẮT BUỘC) -->
+            <!-- CCCD / THẺ CĂN CƯỚC (BẮT BUỘC) -->
             <div class="upload-card" id="card_CCCD">
               <div class="upload-card-header">
-                <span class="upload-card-title">🪪 <span data-i18n="doc_cccd_title">Bản sao CCCD / CMND</span></span>
+                <span class="upload-card-title">🪪 <span data-i18n="doc_cccd_title">Bản sao CCCD / Thẻ Căn cước</span></span>
                 <span class="upload-req-tag req-tag-mandatory" id="tag_CCCD" data-i18n="tag_mandatory">Bắt buộc</span>
               </div>
               <input type="file" id="file_CCCD" class="file-input-hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onchange="handleFileSelected('CCCD', this)">
@@ -1452,11 +1599,11 @@
 
           <!-- LƯU Ý HỒ SƠ BẢN CỨNG -->
           <div class="physical-doc-notice">
-            <span class="notice-icon">📌</span>
+            <span style="font-size: 24px; line-height: 1;">📌</span>
             <div>
               <strong data-i18n="notice_first_day_title">Lưu ý quan trọng khi nhận việc:</strong><br>
               <span data-i18n="notice_first_day_content">
-                Tại ngày đầu tới nhận việc, anh/chị mang đầy đủ các hồ sơ trên (Bản sao chứng thực: CCCD/CMND, Bằng tốt nghiệp/Chứng chỉ; Bản gốc: SYLL, Giấy khám sức khỏe; Bản photo: Xác thực cư trú trên VNEID; 02 ảnh thẻ 4cm x 6cm) nộp cho bộ phận Nhân sự của Công ty.
+                Tại ngày đầu tới nhận việc, anh/chị mang đầy đủ các hồ sơ trên (Bản sao chứng thực: CCCD/Căn cước, Bằng tốt nghiệp/Chứng chỉ; Bản gốc: SYLL, Giấy khám sức khỏe; Bản photo: Xác thực cư trú trên VNEID; 02 ảnh thẻ 4cm x 6cm) nộp cho bộ phận Nhân sự của Công ty.
               </span>
             </div>
           </div>
@@ -1488,40 +1635,53 @@
         <div id="step-9" class="form-step">
           <div class="step-header">
             <h2 class="step-title" data-i18n="step9_title">Bước 9: Cam kết & Hoàn tất kê khai</h2>
-            <div class="step-description" data-i18n="step9_desc">Xác nhận pháp lý về tính trung thực của các thông tin đã kê khai.</div>
+            <div class="step-description" data-i18n="step9_desc">Xác nhận pháp lý về tính trung thực và cam kết bảo vệ dữ liệu cá nhân theo quy định.</div>
           </div>
 
+          <!-- CAM KẾT BẢO MẬT TỪ PHÍA CÔNG TY (NGHỊ ĐỊNH 13/2023/NĐ-CP) -->
+          <div class="privacy-commitment-card">
+            <div class="privacy-badge">
+              <span>🛡️</span>
+              <span data-i18n="company_privacy_badge">Tuân thủ Nghị định 13/2023/NĐ-CP</span>
+            </div>
+            <h3 style="color: var(--primary); margin-bottom: 8px; font-size: 15px; font-weight: 800;" data-i18n="company_privacy_title">
+              CAM KẾT BẢO VỆ DỮ LIỆU CÁ NHÂN CỦA CÔNG TY
+            </h3>
+            <p style="font-size: 13.5px; line-height: 1.65; color: #334155;" data-i18n="company_privacy_content">
+              Công ty cam kết toàn bộ dữ liệu, thông tin cá nhân và hồ sơ đính kèm do người lao động cung cấp chỉ được sử dụng cho mục đích quản lý nhân sự nội bộ, thực hiện thủ tục tiếp nhận, ký kết hợp đồng lao động, đóng BHXH, kê khai thuế TNCN và giải quyết chế độ phúc lợi theo quy định của Pháp luật. Công ty cam đoan bảo mật tuyệt đối, không cung cấp, mua bán, chuyển giao hoặc sử dụng dữ liệu của bạn cho bất kỳ bên thứ ba nào vì mục đích thương mại khi chưa có sự đồng ý của bạn.
+            </p>
+          </div>
+
+          <!-- CAM KẾT CỦA NGƯỜI LAO ĐỘNG (ĐÃ BỎ NÚT "KHÔNG ĐỒNG Ý") -->
           <div style="background: #fff; border: 1.5px solid var(--primary); border-radius: var(--radius-md); padding: 22px; margin-bottom: 22px;">
-            <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 15.5px;" data-i18n="commitment_header">CAM KẾT CỦA NGƯỜI LAO ĐỘNG</h3>
+            <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 15.5px; font-weight: 800;" data-i18n="commitment_header">
+              CAM KẾT CỦA NGƯỜI LAO ĐỘNG
+            </h3>
             <p style="font-size: 14px; line-height: 1.7; color: #334155; margin-bottom: 18px;" data-i18n="commitment_text">
-              "Tôi xin cam kết những thông tin đã kê khai trên đây là đúng sự thật. Nếu có điều gì sai sót so với thông tin trên giấy tờ bản cứng sẽ nộp, tôi xin chịu mọi trách nhiệm trước Công ty và trước pháp luật."
+              "Tôi đã đọc kỹ cam kết bảo mật của Công ty. Tôi xin cam kết toàn bộ những thông tin đã kê khai trên đây (đặc biệt là thông tin cư trú sau khi sáp nhập) là hoàn toàn đúng sự thật. Nếu có điều gì sai sót hoặc không trùng khớp với hồ sơ gốc bản cứng, tôi xin chịu mọi trách nhiệm trước Công ty và trước pháp luật."
             </p>
             
-            <div style="display: flex; gap: 24px; flex-wrap: wrap;">
-              <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer; color: var(--primary);">
-                <input type="radio" name="commitmentRadio" value="Đồng ý" style="width: 18px; height: 18px;">
-                <span data-i18n="commitment_agree">Tôi đồng ý với cam kết trên</span>
-              </label>
-              <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; color: var(--text-muted);">
-                <input type="radio" name="commitmentRadio" value="Không đồng ý" style="width: 18px; height: 18px;">
-                <span data-i18n="commitment_disagree">Không đồng ý</span>
+            <div>
+              <label style="display: flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer; color: var(--primary); font-size: 14.5px;">
+                <input type="checkbox" id="commitmentAgreeCheckbox" checked style="width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer;">
+                <span data-i18n="commitment_agree">Tôi đã đọc, hiểu rõ và đồng ý với các cam kết trên</span>
               </label>
             </div>
           </div>
 
           <div class="physical-doc-notice" style="margin-top: 0; margin-bottom: 24px;">
-            <span class="notice-icon">📌</span>
+            <span style="font-size: 24px; line-height: 1;">📌</span>
             <div>
               <strong data-i18n="notice_first_day_title">Lưu ý quan trọng khi nhận việc:</strong><br>
               <span data-i18n="notice_first_day_content">
-                Tại ngày đầu tới nhận việc, anh/chị mang đầy đủ các hồ sơ trên (Bản sao chứng thực: CCCD/CMND, Bằng tốt nghiệp/Chứng chỉ; Bản gốc: SYLL, Giấy khám sức khỏe; Bản photo: Xác thực cư trú trên VNEID; 02 ảnh thẻ 4cm x 6cm) nộp cho bộ phận Nhân sự của Công ty.
+                Tại ngày đầu tới nhận việc, anh/chị mang đầy đủ các hồ sơ trên (Bản sao chứng thực: CCCD/Căn cước, Bằng tốt nghiệp/Chứng chỉ; Bản gốc: SYLL, Giấy khám sức khỏe; Bản photo: Xác thực cư trú trên VNEID; 02 ảnh thẻ 4cm x 6cm) nộp cho bộ phận Nhân sự của Công ty.
               </span>
             </div>
           </div>
 
           <div class="step-actions">
             <button type="button" class="btn btn-secondary" onclick="goToStep(8)">&larr; <span data-i18n="btn_back_review">Quay lại kiểm tra</span></button>
-            <button type="button" id="btnFinalSubmit" class="btn btn-success" style="padding: 12px 30px; font-size: 14.5px;" onclick="openConfirmModal()">
+            <button type="button" id="btnFinalSubmit" class="btn btn-success" style="padding: 12px 34px; font-size: 15px;" onclick="openConfirmModal()">
               <span data-i18n="btn_finish_submit">Hoàn tất kê khai</span> &rarr;
             </button>
           </div>
@@ -1531,9 +1691,9 @@
         <div id="step-10" class="form-step">
           <div class="success-card">
             <div class="success-icon-wrapper">✓</div>
-            <h2 style="font-size: 24px; color: var(--primary); font-weight: 800;" data-i18n="success_title">KÊ KHAI THÀNH CÔNG</h2>
-            <p style="color: var(--text-muted); margin-top: 8px; font-size: 14.5px;" data-i18n="success_desc">
-              Cảm ơn bạn đã hoàn tất việc kê khai thông tin nhân sự.<br>Toàn bộ hồ sơ của bạn đã được lưu trữ an toàn trên hệ thống.
+            <h2 style="font-size: 26px; color: var(--primary); font-weight: 800;" data-i18n="success_title">KÊ KHAI THÀNH CÔNG</h2>
+            <p style="color: var(--text-muted); margin-top: 10px; font-size: 15px;" data-i18n="success_desc">
+              Cảm ơn bạn đã hoàn tất việc kê khai thông tin nhân sự.<br>Toàn bộ hồ sơ của bạn đã được mã hóa và lưu trữ an toàn trên hệ thống.
             </p>
             <div>
               <span class="success-code-tag" id="submissionIdBadge">Mã hồ sơ: HR-LOADING</span>
@@ -1550,8 +1710,8 @@
 
   <!-- FOOTER -->
   <footer class="portal-footer">
-    <div style="font-weight: 600; margin-bottom: 4px;" data-i18n="footer_title">&copy; Cổng Thông Tin Nhân Sự - Bộ phận Nhân sự (EDUCO)</div>
-    <div data-i18n="footer_desc">Thông tin kê khai được bảo mật và chỉ sử dụng cho mục đích quản lý nhân sự theo quy định của Pháp luật.</div>
+    <div style="font-weight: 700; margin-bottom: 4px;" data-i18n="footer_title">&copy; Cổng Thông Tin Nhân Sự - Bộ phận Nhân sự (EDUCO)</div>
+    <div data-i18n="footer_desc">Thông tin kê khai được bảo vệ theo Nghị định 13/2023/NĐ-CP và chỉ sử dụng cho mục đích quản lý nhân sự theo quy định.</div>
   </footer>
 
   <!-- LOAD JAVASCRIPT EXTERNAL -->
