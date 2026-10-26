@@ -1288,6 +1288,12 @@
             <div class="step-description" data-i18n="step3_desc">Vui lòng chọn hình thức và thời gian làm việc đã thỏa thuận.</div>
           </div>
           <div class="form-grid">
+            <div class="form-group col-span-2">
+              <label class="form-label"><span data-i18n="label_work_branch">Cơ sở làm việc</span> <span class="required-star">*</span></label>
+              <select id="workBranch" class="form-control" required>
+                <option value="">-- Chọn Cơ sở làm việc --</option>
+              </select>
+            </div>
             <div class="form-group">
               <label class="form-label"><span data-i18n="label_working_type">Hình thức làm việc</span> <span class="required-star">*</span></label>
               <select id="workingType" class="form-control" onchange="onWorkingTypeChange(this.value)" required>
