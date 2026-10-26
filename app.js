@@ -239,7 +239,7 @@ const I18N_DICT = {
     opt_place_other: "Khác",
     opt_fulltime: "Fulltime (Toàn thời gian)",
     opt_parttime: "Parttime (Bán thời gian)",
-    opt_time_ft: "Toàn thời gian (Cố định)",
+    opt_time_ft: "Toàn thời gian",
     opt_time_under1m: "Dưới 1 tháng",
     opt_time_over1m: "Trên 1 tháng",
     opt_edu_postgrad: "Trên Đại học",
@@ -603,7 +603,7 @@ const DROPDOWN_CONFIGS = {
     { val: "Parttime", vi: "Parttime (Bán thời gian)", en: "Part-time" }
   ],
   workingTime: [
-    { val: "Toàn thời gian (Cố định)", vi: "Toàn thời gian (Cố định)", en: "Full-time (Standard)" },
+    { val: "Toàn thời gian", vi: "Toàn thời gian", en: "Full-time (Standard)" },
     { val: "Dưới 1 tháng", vi: "Dưới 1 tháng", en: "Under 1 month" },
     { val: "Trên 1 tháng", vi: "Trên 1 tháng", en: "Over 1 month" }
   ],
@@ -893,7 +893,7 @@ async function loadInitialSystemData() {
 function onWorkingTypeChange(type) {
   const workingTimeSelect = document.getElementById('workingTime');
   if (type === 'Fulltime') {
-    workingTimeSelect.value = 'Toàn thời gian (Cố định)';
+    workingTimeSelect.value = 'Toàn thời gian';
   } else {
     workingTimeSelect.value = 'Trên 1 tháng';
   }
