@@ -25,6 +25,7 @@ let APP_STATE = {
   links: {},
   addressTree: {}, // { "Hà Nội": ["Phường A", "Xã B"], ... }
   provinces: [],
+  campuses: [],
   uploadedFilesData: {},
   emergencyContactPerson: null,
   isSubmitting: false,
@@ -101,6 +102,8 @@ const I18N_DICT = {
     // Step 3
     step3_title: "Bước 3: Thông tin công việc",
     step3_desc: "Vui lòng chọn hình thức và thời gian làm việc đã thỏa thuận.",
+    label_work_branch: "Cơ sở làm việc",
+    opt_select_campus: "-- Chọn Cơ sở làm việc --",
     label_working_type: "Hình thức làm việc",
     label_working_time: "Thời gian làm việc",
 
@@ -367,6 +370,8 @@ const I18N_DICT = {
     // Step 3
     step3_title: "Step 3: Job Information",
     step3_desc: "Please specify your agreed employment type and working time.",
+    label_work_branch: "Work Campus / Branch",
+    opt_select_campus: "-- Select Campus / Branch --",
     label_working_type: "Employment Type",
     label_working_time: "Working Duration",
 
@@ -653,6 +658,7 @@ function setLanguage(lang) {
   // 4. Render lại toàn bộ Dropdown theo ngôn ngữ
   renderAllDropdowns();
   populateAddressDropdowns();
+  populateCampusDropdown();
 
   // 5. Cập nhật Badge trên Header
   if (APP_STATE.currentStep > 0 && APP_STATE.currentStep < 10) {
@@ -741,6 +747,25 @@ function renderAllDropdowns() {
     relHtml += `<option value="Khác" ${currentRel === 'Khác' ? 'selected' : ''}>${dict.opt_other}</option>`;
     relSelect.innerHTML = relHtml;
   }
+}
+
+// ========================================================================
+// CAMPUS POPULATOR (SHEET: Campus)
+// ========================================================================
+function populateCampusDropdown() {
+  const dict = I18N_DICT[APP_STATE.lang] || I18N_DICT['vi'];
+  const campusSelect = document.getElementById('workBranch');
+  if (!campusSelect) return;
+
+  const currentVal = campusSelect.value;
+  let html = `<option value="">${dict.opt_select_campus || '-- Chọn Cơ sở làm việc --'}</option>`;
+
+  APP_STATE.campuses.forEach(campus => {
+    const selected = (campus === currentVal) ? 'selected' : '';
+    html += `<option value="${campus}" ${selected}>${campus}</option>`;
+  });
+
+  campusSelect.innerHTML = html;
 }
 
 // ========================================================================
@@ -847,7 +872,7 @@ document.addEventListener('DOMContentLoaded', function() {
   addExperienceRow();
   addFamilyRow();
 
-  // Tải dữ liệu từ GAS (Bao gồm Links & Danh mục Address Tỉnh/Phường)
+  // Tải dữ liệu từ GAS (Bao gồm Links, Campuses & Danh mục Address Tỉnh/Phường)
   loadInitialSystemData();
 
   checkAndPromptDraftModal();
@@ -860,7 +885,7 @@ async function loadInitialSystemData() {
     return;
   }
 
-  showLoading('Đang kết nối cấu hình hệ thống & nạp danh mục địa chỉ...');
+  showLoading('Đang kết nối cấu hình hệ thống & nạp danh mục...');
   try {
     const response = await fetch(GAS_API_URL, {
       method: 'GET',
@@ -873,13 +898,18 @@ async function loadInitialSystemData() {
       APP_STATE.links = result.data.links || {};
       APP_STATE.addressTree = result.data.addressTree || {};
       APP_STATE.provinces = result.data.provinces || Object.keys(APP_STATE.addressTree);
+      APP_STATE.campuses = result.data.campuses || [];
 
       rebindDynamicLinks();
       populateAddressDropdowns();
+      populateCampusDropdown();
 
-      // Nếu có draft pending, đồng bộ lại địa chỉ sau khi nạp danh mục xong
+      // Nếu có draft pending, đồng bộ lại địa chỉ & cơ sở sau khi nạp danh mục xong
       if (APP_STATE.pendingDraftData) {
         restoreDraftAddressFields(APP_STATE.pendingDraftData);
+        if (APP_STATE.pendingDraftData.workBranch) {
+          document.getElementById('workBranch').value = APP_STATE.pendingDraftData.workBranch;
+        }
       }
     } else {
       showToast('Lỗi tải cấu hình: ' + (result ? result.error : 'Không phản hồi'), 'error');
@@ -1288,6 +1318,11 @@ function validateStep(step) {
   }
 
   if (step === 3) {
+    if (!document.getElementById('workBranch').value) {
+      showToast(isEn ? 'Please select work campus/branch.' : 'Vui lòng chọn cơ sở làm việc.', 'error');
+      document.getElementById('workBranch').focus();
+      return false;
+    }
     if (!document.getElementById('workingType').value) {
       showToast(isEn ? 'Please select employment type.' : 'Vui lòng chọn hình thức làm việc.', 'error');
       return false;
@@ -1445,6 +1480,7 @@ function renderReviewData() {
         <button type="button" class="btn-edit-jump" onclick="goToStep(3)">${isEn ? 'Edit' : 'Chỉnh sửa'}</button>
       </div>
       <div class="review-body">
+        <div class="review-item col-span-2"><span class="review-label">${isEn ? 'Campus / Branch' : 'Cơ sở làm việc'}</span><span class="review-value">${payload.workBranch}</span></div>
         <div class="review-item"><span class="review-label">${isEn ? 'Employment Type' : 'Hình thức làm việc'}</span><span class="review-value">${payload.workingType}</span></div>
         <div class="review-item"><span class="review-label">${isEn ? 'Working Duration' : 'Thời gian làm việc'}</span><span class="review-value">${payload.workingTime}</span></div>
       </div>
@@ -1678,7 +1714,7 @@ function collectFormData() {
     phone: document.getElementById('phone').value.trim(),
     email: document.getElementById('email').value.trim(),
 
-    workBranch: '',
+    workBranch: document.getElementById('workBranch').value.trim(), // Cột S
     workDepartment: '',
     startDate: '',
     jobTitle: '',
@@ -1756,6 +1792,7 @@ function saveDraftToLocalStorage() {
 
       phone: document.getElementById('phone').value,
       email: document.getElementById('email').value,
+      workBranch: document.getElementById('workBranch').value,
       workingType: document.getElementById('workingType').value,
       workingTime: document.getElementById('workingTime').value,
       educationLevel: document.getElementById('educationLevel').value,
@@ -1837,6 +1874,7 @@ function applyAndResumeDraft() {
   document.getElementById('phone').value = draft.phone || '';
   document.getElementById('email').value = draft.email || '';
 
+  if (draft.workBranch) document.getElementById('workBranch').value = draft.workBranch;
   if (draft.workingType) document.getElementById('workingType').value = draft.workingType;
   if (draft.workingTime) document.getElementById('workingTime').value = draft.workingTime;
 
