@@ -1108,7 +1108,7 @@ async function loadInitialSystemData() {
     return;
   }
 
-  showLoading('Đang kết nối cấu hình hệ thống & nạp danh mục...');
+  showLoading('Đang tải dữ liệu...');
   try {
     const response = await fetch(GAS_API_URL, {
       method: 'GET',
