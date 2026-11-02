@@ -3,8 +3,44 @@
 // ========================================================================
 const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbywxn166MK1yy1GoJoYV1INq0wO9qf5YAZ8xISvweMf_QaSxVVYJIQG4bzRy2Y8xFKqTg/exec';
 
-// Logo Google Drive Direct & Thumbnail Fallback
-const COMPANY_LOGO_URL = 'https://lh3.googleusercontent.com/d/1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V';
+// ========================================================================
+// COMPANY BRANDING & LOGO REPOSITORY (THAY THẾ LINK LOGO TẠI ĐÂY)
+// ========================================================================
+const COMPANY_CONFIG = {
+  edufit: {
+    key: 'edufit',
+    nameVi: 'Tập đoàn Giáo dục Edufit',
+    nameEn: 'Edufit Education Group',
+    shortVi: 'EDUFIT GROUP',
+    shortEn: 'EDUFIT GROUP',
+    badgeText: 'EDUFIT HR',
+    // Dán link logo Edufit vào bên dưới:
+    logoUrl: 'https://lh3.googleusercontent.com/d/1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V',
+    fallbackThumbnail: 'https://drive.google.com/thumbnail?id=1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V&sz=w500'
+  },
+  momora: {
+    key: 'momora',
+    nameVi: 'Công ty Cổ phần Momora',
+    nameEn: 'Momora Joint Stock Company',
+    shortVi: 'MOMORA JSC',
+    shortEn: 'MOMORA JSC',
+    badgeText: 'MOMORA HR',
+    // Dán link logo Momora vào bên dưới (nếu chưa có có thể tạm dùng logo Edufit hoặc link mới):
+    logoUrl: 'https://lh3.googleusercontent.com/d/1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V',
+    fallbackThumbnail: 'https://drive.google.com/thumbnail?id=1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V&sz=w500'
+  },
+  tomita: {
+    key: 'tomita',
+    nameVi: 'Công ty Cổ phần Trang trại Tomita Việt Nam',
+    nameEn: 'Tomita Vietnam Farm Joint Stock Company',
+    shortVi: 'TOMITA MART',
+    shortEn: 'TOMITA MART',
+    badgeText: 'TOMITA HR',
+    // Dán link logo Tomita vào bên dưới:
+    logoUrl: 'https://lh3.googleusercontent.com/d/1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V',
+    fallbackThumbnail: 'https://drive.google.com/thumbnail?id=1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V&sz=w500'
+  }
+};
 
 const ETHNIC_GROUPS = [
   "Kinh", "Tày", "Thái", "Mường", "H'Mông", "Dao", "Khơ-me", "Nùng", "Hoa", "Gia-rai",
@@ -21,9 +57,10 @@ const RELIGIONS = [
 
 let APP_STATE = {
   lang: 'vi',
+  selectedCompany: 'edufit', // 'edufit' | 'momora' | 'tomita'
   currentStep: 0,
   links: {},
-  addressTree: {}, // { "Hà Nội": ["Phường A", "Xã B"], ... }
+  addressTree: {},
   provinces: [],
   campuses: [],
   uploadedFilesData: {},
@@ -39,6 +76,56 @@ const I18N_DICT = {
   vi: {
     app_title: "Kê Khai Thông Tin Nhân Sự",
     step_badge_prefix: "Bước",
+    btn_change_company: "Đổi công ty",
+    btn_reselect_company: "Chọn lại công ty",
+    
+    // Step 0: About Us & Selector
+    about_hero_badge: "✨ HỆ SINH THÁI TẬP ĐOÀN ĐA NGÀNH",
+    about_hero_title: "CHÀO MỪNG BẠN GIA NHẬP ĐỘI NGŨ",
+    about_hero_desc: "Chúng tôi là tập đoàn đa lĩnh vực tiên phong kiến tạo các giá trị bền vững trong Giáo dục chuẩn quốc tế, Y tế - Chăm sóc sức khỏe cao cấp và Nông nghiệp hữu cơ thuận tự nhiên. Hãy chọn đơn vị bạn chuẩn bị công tác để bắt đầu hoàn thiện hồ sơ tiếp nhận.",
+    
+    selector_question_title: "BẠN LÀ NHÂN VIÊN MỚI THUỘC CÔNG TY NÀO?",
+    selector_question_subtitle: "Vui lòng bấm chọn thương hiệu/công ty bạn gia nhập để mở phiếu kê khai thông tin tương ứng:",
+    
+    company_edufit_short: "TẬP ĐOÀN GIÁO DỤC EDUFIT",
+    company_edufit_sub: "Sakura Montessori • Dewey • Educo",
+    company_momora_short: "CÔNG TY CỔ PHẦN MOMORA",
+    company_momora_sub: "Chăm sóc sau sinh cao cấp chuẩn Hàn",
+    company_tomita_short: "CÔNG TY CP TRANG TRẠI TOMITA",
+    company_tomita_sub: "Hệ thống thực phẩm hữu cơ Tomita Mart",
+
+    tag_field_education: "Giáo dục Đẳng cấp Quốc tế",
+    company_edufit_name: "Tập đoàn Giáo dục Edufit",
+    about_edufit_p1: "Tập đoàn giáo dục Edufit sở hữu chuỗi trường mầm non Sakura và chuỗi trường liên cấp Dewey cùng các công ty thành viên: Educo, ASC, Sdeli. Edufit là tập đoàn giáo dục tiên phong, mang đến nền giáo dục đẳng cấp thế giới, được thành lập tại Việt Nam năm 2011.",
+    label_mission: "Mục đích của chúng tôi",
+    about_edufit_mission: "Truyền sức mạnh và truyền khả năng cho các thế hệ người học với trí tuệ, năng lực và nhân cách để làm chủ sự thay đổi của thế giới, trở thành người lãnh đạo tác động tích cực tới cộng đồng ở bất cứ nơi đâu họ sống.",
+    label_capability: "Tuyên bố khả năng",
+    about_edufit_capability: "Mang đến nền giáo dục chất lượng cao trong môi trường học tập an toàn, thúc đẩy năng lực công dân toàn cầu và học tập liên văn hóa, nuôi dưỡng hạnh phúc của học sinh - sinh viên, giáo viên và nhân viên; phát triển năng lực cần thiết để dẫn đầu trong kỷ nguyên trí tuệ nhân tạo và xa hơn thế.",
+    btn_choose_edufit: "Chọn Edufit & Tiếp tục",
+
+    tag_field_healthcare: "Y tế & Chăm sóc Sau sinh",
+    company_momora_name: "Công ty Cổ phần Momora",
+    about_momora_p1: "Công ty Cổ phần Momora tự hào vận hành hệ thống Trung tâm chăm sóc sau sinh phân khúc cao cấp chuẩn Hàn Quốc đầu tiên tại Việt Nam, phối hợp cùng các phòng khám chuyên khoa Sản - Nhi nhằm mang lại giải pháp chăm sóc sức khỏe toàn diện, chuẩn mực quốc tế cho mẹ và bé.",
+    about_momora_mission: "Đồng hành, nâng niu và tối ưu hóa hành trình phục hồi của người mẹ cùng sự phát triển khởi đầu của trẻ sơ sinh bằng sự tận tâm, chuyên nghiệp và khoa học; giúp các gia đình an tâm tận hưởng trọn vẹn thiên chức làm cha mẹ trong một không gian nghỉ dưỡng đẳng cấp.",
+    about_momora_capability: "Mang đến dịch vụ điều dưỡng và chăm sóc y tế chất lượng cao trong môi trường an toàn, chuẩn mực quốc tế; kết hợp các liệu trình phục hồi chuyên sâu chuyển giao từ đối tác hàng đầu Gangnam (Hàn Quốc); nuôi dưỡng sức khỏe thể chất và cân bằng tâm trí cho sản phụ, đồng thời kiến tạo nền tảng thể chất vững chắc nhất cho thế hệ tương lai từ những ngày đầu đời.",
+    btn_choose_momora: "Chọn Momora & Tiếp tục",
+
+    tag_field_agriculture: "Thực phẩm Hữu cơ & Tự nhiên",
+    company_tomita_name: "Công ty CP Trang trại Tomita",
+    about_tomita_p1: "Công ty Cổ phần Trang trại Tomita Việt Nam là doanh nghiệp có vốn đầu tư Nhật Bản, được thành lập từ tháng 7/2016 và có trụ sở tại Hà Nội. Với mong muốn mang đến nguồn thực phẩm an toàn, chất lượng và góp phần nâng cao sức khỏe cộng đồng, đặc biệt là trẻ em, Tomita tập trung cung ứng các sản phẩm hữu cơ, thực phẩm thuận tự nhiên và thực phẩm nhập khẩu chất lượng cao thông qua hệ thống siêu thị thực phẩm cao cấp Tomita Mart.",
+    label_scale_network: "Mạng lưới & Phát triển",
+    about_tomita_p2: "Sau 10 năm hình thành và phát triển, Tomita Mart hiện có 10 cơ sở tại nhiều khu vực trên địa bàn Hà Nội như Yên Hòa, Hà Đông, Vinhomes Smart City Tây Mỗ, KĐT Starlake - Tây Hồ Tây, KĐT Ciputra - Nam Thăng Long và KĐT Vinhomes Ocean Park Gia Lâm. Với định hướng tiếp tục mở rộng hệ thống, Tomita chào đón những ứng viên nhiệt huyết, trách nhiệm và mong muốn đồng hành lâu dài cùng doanh nghiệp.",
+    btn_choose_tomita: "Chọn Tomita & Tiếp tục",
+
+    // Welcome Screen
+    welcome_title: "THÔNG TIN KÊ KHAI NHÂN SỰ",
+    welcome_subtitle: "Chào mừng bạn gia nhập đội ngũ nhân sự! Vui lòng hoàn thành các bước kê khai thông tin lý lịch và đính kèm hồ sơ theo quy định để chúng tôi hoàn thiện thủ tục tiếp nhận.",
+    welcome_badge_time: "⏱ Thời gian hoàn tất: ~10 phút",
+    welcome_badge_security: "🔒 Bảo mật dữ liệu tuyệt đối (NĐ 13/2023/NĐ-CP)",
+    welcome_badge_prep: "📁 Chuẩn bị sẵn CCCD/Căn cước, Ảnh thẻ & Bằng cấp",
+    btn_start: "Bắt đầu kê khai",
+    
+    // Step navigation
     step_nav_1: "Cá nhân",
     step_nav_2: "Định danh & Nơi ở",
     step_nav_3: "Công việc",
@@ -48,15 +135,7 @@ const I18N_DICT = {
     step_nav_7: "Hồ sơ",
     step_nav_8: "Kiểm tra",
     step_nav_9: "Cam kết",
-    
-    // Welcome
-    welcome_title: "THÔNG TIN KÊ KHAI NHÂN SỰ",
-    welcome_subtitle: "Chào mừng bạn gia nhập đội ngũ nhân sự! Vui lòng hoàn thành các bước kê khai thông tin lý lịch và đính kèm hồ sơ theo quy định để chúng tôi hoàn thiện thủ tục tiếp nhận.",
-    welcome_badge_time: "⏱ Thời gian hoàn tất: ~10 phút",
-    welcome_badge_security: "🔒 Bảo mật dữ liệu tuyệt đối (NĐ 13/2023/NĐ-CP)",
-    welcome_badge_prep: "📁 Chuẩn bị sẵn CCCD/Căn cước, Ảnh thẻ & Bằng cấp",
-    btn_start: "Bắt đầu kê khai",
-    
+
     // Step 1
     step1_title: "Bước 1: Thông tin cá nhân cơ bản",
     step1_desc: "Vui lòng nhập thông tin cơ bản chính xác theo hộ tịch/giấy khai sinh và CSDL Quốc gia về dân cư.",
@@ -124,8 +203,8 @@ const I18N_DICT = {
     th_tasks: "Nội dung công việc",
     th_action: "Xóa",
     btn_add_exp: "Thêm kinh nghiệm",
-    label_edu_certs: "Các chứng chỉ liên quan đến lĩnh vực Giáo dục",
-    label_edu_exp_years: "Số năm kinh nghiệm trong ngành GD",
+    label_edu_certs: "Các chứng chỉ chuyên môn / liên quan",
+    label_edu_exp_years: "Số năm kinh nghiệm trong ngành",
     label_living_abroad: "Thời gian sống ở nước ngoài",
 
     // Step 5
@@ -140,7 +219,7 @@ const I18N_DICT = {
     label_bidv_account: "Tài khoản ngân hàng BIDV (Chi nhánh Thanh Xuân)",
     label_other_bank: "Tài khoản ngân hàng khác BIDV",
     helper_other_bank: "Bắt buộc ghi đủ thông tin: Chủ tài khoản - Ngân hàng - Số tài khoản - Chi nhánh nếu chưa có BIDV.",
-    label_vehicle_info: "Thông tin xe đăng ký gửi tại Công ty / Cơ sở trường",
+    label_vehicle_info: "Thông tin xe đăng ký gửi tại Công ty / Cơ sở làm việc",
     helper_vehicle_info: "Nếu không sử dụng phương tiện cá nhân, vui lòng điền 'Không'.",
 
     // Step 6
@@ -172,6 +251,8 @@ const I18N_DICT = {
     doc_health_title: "Giấy khám sức khỏe",
     doc_vneid_title: "Xác thực cư trú VNeID",
     doc_degree_title: "Bằng cấp chuyên môn & Chứng chỉ",
+    doc_momora_cchn_title: "Giấy phép / Chứng chỉ hành nghề",
+    doc_momora_exit_title: "Xác nhận kết thúc hành nghề tại đơn vị cũ",
     tag_mandatory: "Bắt buộc",
     tag_optional: "Không bắt buộc",
     btn_choose_file: "Chọn tệp...",
@@ -187,12 +268,9 @@ const I18N_DICT = {
     // Step 9
     step9_title: "Bước 9: Cam kết & Hoàn tất kê khai",
     step9_desc: "Xác nhận pháp lý về tính trung thực và cam kết bảo vệ dữ liệu cá nhân theo quy định.",
-    
-    // Privacy Statement from Company
     company_privacy_title: "CAM KẾT BẢO VỆ DỮ LIỆU CÁ NHÂN CỦA CÔNG TY",
     company_privacy_badge: "Tuân thủ Nghị định 13/2023/NĐ-CP",
     company_privacy_content: "Công ty cam kết toàn bộ dữ liệu, thông tin cá nhân và hồ sơ đính kèm do người lao động cung cấp chỉ được sử dụng cho mục đích quản lý nhân sự nội bộ, thực hiện thủ tục tiếp nhận, ký kết hợp đồng lao động, đóng BHXH, kê khai thuế TNCN và giải quyết chế độ phúc lợi theo quy định của Pháp luật. Công ty cam đoan bảo mật tuyệt đối, không cung cấp, mua bán, chuyển giao hoặc sử dụng dữ liệu của bạn cho bất kỳ bên thứ ba nào vì mục đích thương mại khi chưa có sự đồng ý của bạn.",
-    
     commitment_header: "CAM KẾT CỦA NGƯỜI LAO ĐỘNG",
     commitment_text: "\"Tôi đã đọc kỹ cam kết bảo mật của Công ty. Tôi xin cam kết toàn bộ những thông tin đã kê khai trên đây (đặc biệt là thông tin cư trú sau khi sáp nhập) là hoàn toàn đúng sự thật. Nếu có điều gì sai sót hoặc không trùng khớp với hồ sơ gốc bản cứng, tôi xin chịu mọi trách nhiệm trước Công ty và trước pháp luật.\"",
     commitment_agree: "Tôi đã đọc, hiểu rõ và đồng ý với các cam kết trên",
@@ -217,7 +295,7 @@ const I18N_DICT = {
     btn_confirm_submit: "Xác nhận gửi",
     modal_confirm_title: "Xác nhận gửi kê khai",
     modal_confirm_desc: "Vui lòng đảm bảo các thông tin cá nhân và hồ sơ đính kèm là hoàn toàn chính xác. Bạn có chắc chắn muốn hoàn tất việc kê khai ngay bây giờ?",
-    footer_title: "© Cổng Thông Tin Nhân Sự - Bộ phận Nhân sự (EDUCO)",
+    footer_title: "© Cổng Thông Tin Nhân Sự - Phòng Nhân sự",
     footer_desc: "Thông tin kê khai được bảo vệ theo Nghị định 13/2023/NĐ-CP và chỉ sử dụng cho mục đích quản lý nhân sự theo quy định.",
 
     // Dropdown Option Translations
@@ -275,7 +353,7 @@ const I18N_DICT = {
     ph_school: "VD: Đại học Sư phạm Hà Nội",
     ph_major: "VD: Sư phạm Tiếng Anh",
     ph_grad_year: "VD: 2022",
-    ph_edu_certs: "VD: IELTS 7.5, TESOL 120h, Nghiệp vụ sư phạm... (Nếu không có ghi 'Không')",
+    ph_edu_certs: "VD: IELTS 7.5, TESOL, Chứng chỉ nghiệp vụ... (Nếu không có ghi 'Không')",
     ph_edu_exp_years: "VD: 2.5",
     ph_living_abroad: "VD: 2 năm - Singapore (Nếu không có ghi 'Không')",
     ph_tax_id: "Nhập MST hoặc điền 'Chưa có'",
@@ -307,6 +385,56 @@ const I18N_DICT = {
   en: {
     app_title: "Employee Onboarding Portal",
     step_badge_prefix: "Step",
+    btn_change_company: "Change Company",
+    btn_reselect_company: "Reselect Company",
+
+    // Step 0: About Us & Selector
+    about_hero_badge: "✨ MULTI-SECTOR CONGLOMERATE ECOSYSTEM",
+    about_hero_title: "WELCOME TO OUR TALENT COMMUNITY",
+    about_hero_desc: "We are a pioneering multi-sector conglomerate creating sustainable values across World-Class Education, Premium Healthcare & Postpartum Care, and Certified Organic Food. Please choose the entity you are joining to proceed with your onboarding declaration.",
+
+    selector_question_title: "WHICH COMPANY ARE YOU JOINING?",
+    selector_question_subtitle: "Please select the company or brand you are joining to open the designated onboarding form:",
+
+    company_edufit_short: "EDUFIT EDUCATION GROUP",
+    company_edufit_sub: "Sakura Montessori • Dewey • Educo",
+    company_momora_short: "MOMORA JOINT STOCK COMPANY",
+    company_momora_sub: "Premium Korean Postpartum Care",
+    company_tomita_short: "TOMITA VIETNAM FARM JSC",
+    company_tomita_sub: "Tomita Mart Organic Supermarket Chain",
+
+    tag_field_education: "World-Class Education",
+    company_edufit_name: "Edufit Education Group",
+    about_edufit_p1: "Edufit Education Group operates Sakura Montessori Preschools, The Dewey Schools, alongside member institutions Educo, ASC, and Sdeli. Founded in Vietnam in 2011, Edufit is a pioneering educational organization delivering world-class learning experiences.",
+    label_mission: "Our Purpose",
+    about_edufit_mission: "To empower and equip generations of learners with the knowledge, capabilities, and character to master world changes and become positive leaders in their communities wherever they live.",
+    label_capability: "Statement of Capabilities",
+    about_edufit_capability: "Delivering high-quality education in safe learning environments, fostering global citizenship and intercultural learning, nurturing well-being for students and staff, and developing essential skills to lead in the era of AI and beyond.",
+    btn_choose_edufit: "Select Edufit & Continue",
+
+    tag_field_healthcare: "Healthcare & Postpartum Care",
+    company_momora_name: "Momora Joint Stock Company",
+    about_momora_p1: "Momora proudly operates Vietnam's first premium Korean-standard Postpartum Care Center network, collaborating closely with Obstetrics and Pediatric clinics to offer comprehensive, international healthcare solutions for mothers and infants.",
+    about_momora_mission: "To accompany, cherish, and optimize the recovery journey of mothers and the healthy start of newborns through deep dedication, scientific rigor, and top-tier professionalism in a luxury hospitality setting.",
+    about_momora_capability: "Delivering premium clinical nursing and medical care in safe, international environments; integrating intensive recovery regimens transferred from top partners in Gangnam (Korea); nurturing both physical recovery and mental wellness for mothers while establishing strong foundations for infants.",
+    btn_choose_momora: "Select Momora & Continue",
+
+    tag_field_agriculture: "Organic & Natural Food",
+    company_tomita_name: "Tomita Vietnam Farm JSC",
+    about_tomita_p1: "Tomita Farm Vietnam is a Japanese-invested enterprise founded in July 2016 in Hanoi. Driven by the mission to supply safe, wholesome nutrition that enhances community health—particularly for children—Tomita provides certified organic and natural food through Tomita Mart supermarkets.",
+    label_scale_network: "Network & Growth",
+    about_tomita_p2: "Over a decade of sustainable growth, Tomita Mart now operates 10 flagship stores across premium urban centers in Hanoi (Yen Hoa, Ha Dong, Vinhomes Smart City, Starlake West Lake, Ciputra, and Vinhomes Ocean Park). Tomita eagerly welcomes passionate, responsible candidates looking for long-term career growth.",
+    btn_choose_tomita: "Select Tomita & Continue",
+
+    // Welcome Screen
+    welcome_title: "EMPLOYEE ONBOARDING PORTAL",
+    welcome_subtitle: "Welcome to our team! Please complete the personal information declaration and attach mandatory documents so we can finalize your onboarding process.",
+    welcome_badge_time: "⏱ Completion time: ~10 mins",
+    welcome_badge_security: "🔒 100% Confidential (Decree 13/2023/ND-CP)",
+    welcome_badge_prep: "📁 Prepare your ID Card, Portrait Photo & Diplomas",
+    btn_start: "Start Declaration",
+
+    // Step navigation
     step_nav_1: "Personal",
     step_nav_2: "ID & Address",
     step_nav_3: "Job Info",
@@ -316,14 +444,6 @@ const I18N_DICT = {
     step_nav_7: "Documents",
     step_nav_8: "Review",
     step_nav_9: "Commitment",
-
-    // Welcome
-    welcome_title: "EMPLOYEE ONBOARDING PORTAL",
-    welcome_subtitle: "Welcome to our team! Please complete the personal information declaration and attach mandatory documents so we can finalize your onboarding process.",
-    welcome_badge_time: "⏱ Completion time: ~10 mins",
-    welcome_badge_security: "🔒 100% Confidential (Decree 13/2023/ND-CP)",
-    welcome_badge_prep: "📁 Prepare your ID Card, Portrait Photo & Diplomas",
-    btn_start: "Start Declaration",
 
     // Step 1
     step1_title: "Step 1: Basic Personal Information",
@@ -392,8 +512,8 @@ const I18N_DICT = {
     th_tasks: "Key Responsibilities",
     th_action: "Delete",
     btn_add_exp: "Add Experience",
-    label_edu_certs: "Education & Teaching Certificates",
-    label_edu_exp_years: "Years of Experience in Education",
+    label_edu_certs: "Relevant Professional Certificates",
+    label_edu_exp_years: "Years of Experience in the Field",
     label_living_abroad: "Living Abroad Duration",
 
     // Step 5
@@ -408,7 +528,7 @@ const I18N_DICT = {
     label_bidv_account: "BIDV Bank Account (Thanh Xuan Branch)",
     label_other_bank: "Other Bank Account (Non-BIDV)",
     helper_other_bank: "Required: Account Holder - Bank Name - Account Number - Branch.",
-    label_vehicle_info: "Vehicle Information (for campus parking)",
+    label_vehicle_info: "Vehicle Information (for campus/office parking)",
     helper_vehicle_info: "If you do not commute with a personal vehicle, enter 'None'.",
 
     // Step 6
@@ -440,6 +560,8 @@ const I18N_DICT = {
     doc_health_title: "Health Certificate",
     doc_vneid_title: "VNeID Residence Verification",
     doc_degree_title: "Degrees & Certificates",
+    doc_momora_cchn_title: "Practicing Certificate / License",
+    doc_momora_exit_title: "Confirmation of Practice Termination at Old Clinic",
     tag_mandatory: "Mandatory",
     tag_optional: "Optional",
     btn_choose_file: "Choose file...",
@@ -455,11 +577,9 @@ const I18N_DICT = {
     // Step 9
     step9_title: "Step 9: Commitment & Submission",
     step9_desc: "Legal declaration regarding the accuracy of submitted data & Personal Data Protection Policy.",
-    
     company_privacy_title: "COMPANY'S COMMITMENT TO PERSONAL DATA PROTECTION",
     company_privacy_badge: "Compliance with Decree 13/2023/ND-CP",
     company_privacy_content: "The Company strictly commits that all personal data, files, and credentials provided by the employee are exclusively used for internal human resources administration, employment contract execution, statutory insurance, personal tax withholding, and payroll-related welfare. We strictly guarantee that your data will NEVER be shared, sold, or transferred to any third party for commercial purposes without your explicit consent.",
-    
     commitment_header: "EMPLOYEE'S COMMITMENT",
     commitment_text: "\"I have thoroughly read the Company's Personal Data Protection Policy. I hereby declare and commit that all details provided above (especially post-merger residential addresses) are completely truthful and accurate. If there are any discrepancies compared to physical credentials, I take full responsibility before the Company and the law.\"",
     commitment_agree: "I have read, understood, and agree to the commitments above",
@@ -484,7 +604,7 @@ const I18N_DICT = {
     btn_confirm_submit: "Confirm & Submit",
     modal_confirm_title: "Confirm Submission",
     modal_confirm_desc: "Please ensure all personal details and attached files are completely accurate. Do you confirm to submit now?",
-    footer_title: "© Employee Onboarding Portal - HR Department (EDUCO)",
+    footer_title: "© Employee Onboarding Portal - HR Department",
     footer_desc: "All submitted data is strictly protected under Decree 13/2023/ND-CP and used solely for human resources purposes.",
 
     // Dropdown Option Translations
@@ -542,7 +662,7 @@ const I18N_DICT = {
     ph_school: "e.g., Hanoi National University of Education",
     ph_major: "e.g., English Pedagogy",
     ph_grad_year: "e.g., 2022",
-    ph_edu_certs: "e.g., IELTS 7.5, TESOL 120h, Teaching license... (If none, type 'None')",
+    ph_edu_certs: "e.g., Relevant Certificates... (If none, type 'None')",
     ph_edu_exp_years: "e.g., 2.5",
     ph_living_abroad: "e.g., 2 years in Singapore (If none, type 'None')",
     ph_tax_id: "Enter Tax ID or type 'None'",
@@ -630,6 +750,123 @@ const DROPDOWN_CONFIGS = {
 };
 
 // ========================================================================
+// COMPANY SELECTION CONTROLLER (EDUFIT, MOMORA, TOMITA)
+// ========================================================================
+function selectCompany(companyKey) {
+  if (!COMPANY_CONFIG[companyKey]) companyKey = 'edufit';
+  APP_STATE.selectedCompany = companyKey;
+
+  // 1. Cập nhật trạng thái Active trên 3 nút bấm chọn
+  ['edufit', 'momora', 'tomita'].forEach(key => {
+    const btn = document.getElementById('btnPick' + capitalize(key));
+    if (btn) btn.classList.toggle('selected', key === companyKey);
+  });
+
+  // 2. Cập nhật Logo & Thương hiệu hiển thị
+  applyCompanyBranding(companyKey);
+
+  // 3. Xử lý hiển thị hồ sơ riêng cho Momora
+  toggleMomoraSpecificFields(companyKey === 'momora');
+
+  // 4. Cập nhật nhãn tài liệu
+  updateUploadRequirements();
+
+  // 5. Chuyển vào màn hình chào mừng của công ty đã chọn
+  goToStep('welcome');
+  saveDraftToLocalStorage();
+}
+
+function applyCompanyBranding(companyKey) {
+  const conf = COMPANY_CONFIG[companyKey];
+  if (!conf) return;
+
+  const isEn = (APP_STATE.lang === 'en');
+  const compName = isEn ? conf.nameEn : conf.nameVi;
+  const compShort = isEn ? conf.shortEn : conf.shortVi;
+
+  // Header Logo & Branding
+  const headerImg = document.getElementById('headerLogo');
+  const headerBadge = document.getElementById('headerBrandBadge');
+  setupImageWithFallback(headerImg, headerBadge, conf.logoUrl, conf.fallbackThumbnail);
+
+  if (headerBadge) headerBadge.textContent = conf.badgeText;
+  const brandSub = document.getElementById('headerBrandSubText');
+  if (brandSub) brandSub.textContent = compName;
+
+  // Welcome Screen Branding
+  const welcomeImg = document.getElementById('welcomeLogo');
+  const welcomeBadge = document.getElementById('welcomeBrandBadge');
+  setupImageWithFallback(welcomeImg, welcomeBadge, conf.logoUrl, conf.fallbackThumbnail);
+
+  if (welcomeBadge) welcomeBadge.textContent = compShort;
+  const welcomeTitle = document.getElementById('welcomeCompanyTitle');
+  if (welcomeTitle) {
+    welcomeTitle.textContent = (isEn ? 'ONBOARDING DECLARATION - ' : 'THÔNG TIN KÊ KHAI - ') + compShort;
+  }
+
+  // Footer Title
+  const footerTitle = document.getElementById('footerCompanyTitle');
+  if (footerTitle) {
+    footerTitle.textContent = `© ${compName} - ${isEn ? 'HR Department' : 'Phòng Nhân sự'}`;
+  }
+}
+
+function toggleMomoraSpecificFields(isMomora) {
+  const momoraCards = document.querySelectorAll('.momora-extra-field');
+  momoraCards.forEach(card => {
+    card.style.display = isMomora ? 'block' : 'none';
+  });
+
+  // Nếu chuyển khỏi Momora thì giải phóng file tạm của 2 trường này nếu có
+  if (!isMomora) {
+    if (APP_STATE.uploadedFilesData['Chung_chi_hanh_nghe']) {
+      removeFile('Chung_chi_hanh_nghe');
+    }
+    if (APP_STATE.uploadedFilesData['Xac_nhan_ket_thuc_hanh_nghe']) {
+      removeFile('Xac_nhan_ket_thuc_hanh_nghe');
+    }
+  }
+}
+
+function capitalize(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// ========================================================================
+// LOGO RESILIENCE CONTROLLER (DRIVE HOTLINK BYPASS & FALLBACK)
+// ========================================================================
+function setupImageWithFallback(imgEl, badgeEl, directUrl, fallbackUrl) {
+  if (!imgEl) return;
+  imgEl.style.display = 'block';
+  if (badgeEl) badgeEl.style.display = 'none';
+
+  imgEl.referrerPolicy = 'no-referrer';
+  imgEl.crossOrigin = 'anonymous';
+  imgEl.src = directUrl;
+
+  imgEl.onerror = function() {
+    if (fallbackUrl && imgEl.src !== fallbackUrl) {
+      imgEl.src = fallbackUrl;
+    } else {
+      imgEl.style.display = 'none';
+      if (badgeEl) badgeEl.style.display = 'flex';
+    }
+  };
+}
+
+function setupAllAboutLogos() {
+  // Gán ảnh cho 3 card About Us & 3 nút chọn
+  ['edufit', 'momora', 'tomita'].forEach(key => {
+    const conf = COMPANY_CONFIG[key];
+    const pickImg = document.getElementById('logoPick' + capitalize(key));
+    const aboutImg = document.getElementById('aboutLogo' + capitalize(key));
+
+    if (pickImg) setupImageWithFallback(pickImg, null, conf.logoUrl, conf.fallbackThumbnail);
+    if (aboutImg) setupImageWithFallback(aboutImg, null, conf.logoUrl, conf.fallbackThumbnail);
+  });
+}
+
+// ========================================================================
 // LANGUAGE CONTROLLER
 // ========================================================================
 function setLanguage(lang) {
@@ -660,12 +897,15 @@ function setLanguage(lang) {
   populateAddressDropdowns();
   populateCampusDropdown();
 
-  // 5. Cập nhật Badge trên Header
-  if (APP_STATE.currentStep > 0 && APP_STATE.currentStep < 10) {
+  // 5. Cập nhật thương hiệu hiển thị
+  applyCompanyBranding(APP_STATE.selectedCompany);
+
+  // 6. Cập nhật Badge trên Header
+  if (APP_STATE.currentStep >= 1 && APP_STATE.currentStep <= 9) {
     document.getElementById('headerStepBadge').textContent = `${dict.step_badge_prefix} ${APP_STATE.currentStep}/9`;
   }
 
-  // 6. Cập nhật thẻ trạng thái hồ sơ
+  // 7. Cập nhật thẻ trạng thái hồ sơ
   updateUploadRequirements();
 }
 
@@ -831,48 +1071,16 @@ function handleDropdownWithCustom(selectElement, customGroupId) {
 }
 
 // ========================================================================
-// LOGO RESILIENCE CONTROLLER (Bypass Google Drive Hotlink blocks on Vercel)
-// ========================================================================
-function setupBrandLogos() {
-  const headerImg = document.getElementById('headerLogo');
-  const welcomeImg = document.getElementById('welcomeLogo');
-  
-  const setupImg = (imgEl, badgeId) => {
-    if (!imgEl) return;
-    imgEl.referrerPolicy = 'no-referrer';
-    imgEl.crossOrigin = 'anonymous';
-
-    // Đặt link ảnh trực tiếp
-    imgEl.src = COMPANY_LOGO_URL;
-
-    imgEl.onerror = function() {
-      // Thử thumbnail link
-      const fallbackUrl = 'https://drive.google.com/thumbnail?id=1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V&sz=w500';
-      if (imgEl.src !== fallbackUrl) {
-        imgEl.src = fallbackUrl;
-      } else {
-        // Nếu vẫn không được hiển thị Huy hiệu vector cao cấp thay thế
-        imgEl.style.display = 'none';
-        const badge = document.getElementById(badgeId);
-        if (badge) badge.style.display = 'flex';
-      }
-    };
-  };
-
-  setupImg(headerImg, 'headerBrandBadge');
-  setupImg(welcomeImg, 'welcomeBrandBadge');
-}
-
-// ========================================================================
 // LIFECYCLE HOOKS (INIT)
 // ========================================================================
 document.addEventListener('DOMContentLoaded', function() {
-  setupBrandLogos();
+  setupAllAboutLogos();
+  applyCompanyBranding('edufit');
   setLanguage('vi');
   addExperienceRow();
   addFamilyRow();
 
-  // Tải dữ liệu từ GAS (Bao gồm Links, Campuses & Danh mục Address Tỉnh/Phường)
+  // Tải dữ liệu từ Google Sheets qua GAS (Links, Campuses & Address Tree)
   loadInitialSystemData();
 
   checkAndPromptDraftModal();
@@ -930,6 +1138,9 @@ function onWorkingTypeChange(type) {
   updateUploadRequirements();
 }
 
+// ========================================================================
+// UPLOAD REQUIREMENTS CONTROLLER (HEALTH CERT = OPTIONAL; MOMORA EXTRAS)
+// ========================================================================
 function updateUploadRequirements() {
   const workingType = document.getElementById('workingType').value;
   const workingTime = document.getElementById('workingTime').value;
@@ -939,7 +1150,7 @@ function updateUploadRequirements() {
   const lang = APP_STATE.lang;
   const dict = I18N_DICT[lang] || I18N_DICT['vi'];
 
-  // Ảnh thẻ và CCCD: Luôn luôn Bắt buộc
+  // 1. Ảnh thẻ và CCCD: Luôn luôn Bắt buộc với mọi đối tượng
   ['Anh_the', 'CCCD'].forEach(doc => {
     const tag = document.getElementById('tag_' + doc);
     if (tag) {
@@ -948,9 +1159,15 @@ function updateUploadRequirements() {
     }
   });
 
-  // Các giấy tờ khác
-  const otherDocs = ['SYLL', 'Giay_kham_suc_khoe', 'Xac_thuc_cu_tru_VNEID', 'Bang_cap'];
-  otherDocs.forEach(type => {
+  // 2. GIẤY KHÁM SỨC KHỎE: CHUYỂN THÀNH KHÔNG BẮT BUỘC THEO QUY ĐỊNH MỚI
+  const kskTag = document.getElementById('tag_Giay_kham_suc_khoe');
+  if (kskTag) {
+    kskTag.textContent = dict.tag_optional;
+    kskTag.className = 'upload-req-tag req-tag-optional';
+  }
+
+  // 3. SYLL, Xác thực cư trú VNeID, Bằng cấp
+  ['SYLL', 'Xac_thuc_cu_tru_VNEID', 'Bang_cap'].forEach(type => {
     const tag = document.getElementById('tag_' + type);
     if (tag) {
       if (standardRequired) {
@@ -960,6 +1177,15 @@ function updateUploadRequirements() {
         tag.textContent = dict.tag_optional;
         tag.className = 'upload-req-tag req-tag-optional';
       }
+    }
+  });
+
+  // 4. Các giấy tờ bổ sung riêng cho Momora: Luôn là Không bắt buộc
+  ['Chung_chi_hanh_nghe', 'Xac_nhan_ket_thuc_hanh_nghe'].forEach(type => {
+    const tag = document.getElementById('tag_' + type);
+    if (tag) {
+      tag.textContent = dict.tag_optional;
+      tag.className = 'upload-req-tag req-tag-optional';
     }
   });
 }
@@ -1122,30 +1348,52 @@ function removeFile(docType) {
 // ========================================================================
 // NAVIGATION & STEP CONTROLLER
 // ========================================================================
-function goToStep(stepIndex) {
-  if (stepIndex < 0 || stepIndex > 10) return;
-
+function goToStep(stepIdentifier) {
   document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+
+  const headerBadge = document.getElementById('headerStepBadge');
+  const progressContainer = document.getElementById('progressBarContainer');
+  const btnSwitchComp = document.getElementById('btnSwitchCompany');
+  const dict = I18N_DICT[APP_STATE.lang] || I18N_DICT['vi'];
+
+  // Trường hợp màn hình Welcome của công ty đã chọn
+  if (stepIdentifier === 'welcome') {
+    const welcomeStep = document.getElementById('step-welcome');
+    if (welcomeStep) welcomeStep.classList.add('active');
+    headerBadge.style.display = 'none';
+    progressContainer.style.display = 'none';
+    if (btnSwitchComp) btnSwitchComp.style.display = 'inline-flex';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  const stepIndex = parseInt(stepIdentifier, 10);
+  if (isNaN(stepIndex) || stepIndex < 0 || stepIndex > 10) return;
 
   const targetStep = document.getElementById('step-' + stepIndex);
   if (targetStep) targetStep.classList.add('active');
 
   APP_STATE.currentStep = stepIndex;
 
-  const headerBadge = document.getElementById('headerStepBadge');
-  const progressContainer = document.getElementById('progressBarContainer');
-  const dict = I18N_DICT[APP_STATE.lang] || I18N_DICT['vi'];
-
-  if (stepIndex === 0 || stepIndex === 10) {
+  if (stepIndex === 0) {
+    // Về trang chủ About Us
     headerBadge.style.display = 'none';
     progressContainer.style.display = 'none';
+    if (btnSwitchComp) btnSwitchComp.style.display = 'none';
+  } else if (stepIndex === 10) {
+    // Màn hình thành công
+    headerBadge.style.display = 'none';
+    progressContainer.style.display = 'none';
+    if (btnSwitchComp) btnSwitchComp.style.display = 'none';
   } else {
+    // Các bước form từ 1 đến 9
     headerBadge.style.display = 'block';
     headerBadge.textContent = `${dict.step_badge_prefix} ${stepIndex}/9`;
     progressContainer.style.display = 'block';
+    if (btnSwitchComp) btnSwitchComp.style.display = 'inline-flex';
 
     document.querySelectorAll('.step-node').forEach(node => {
-      const s = parseInt(node.getAttribute('data-step'));
+      const s = parseInt(node.getAttribute('data-step'), 10);
       node.classList.remove('active', 'completed');
       if (s === stepIndex) {
         node.classList.add('active');
@@ -1351,7 +1599,7 @@ function validateStep(step) {
       showToast(isEn ? 'Please enter your major.' : 'Vui lòng nhập chuyên ngành.', 'error');
       return false;
     }
-    const y = parseInt(document.getElementById('gradYear').value);
+    const y = parseInt(document.getElementById('gradYear').value, 10);
     if (isNaN(y) || y < 1950 || y > 2035) {
       showToast(isEn ? 'Invalid graduation year.' : 'Năm tốt nghiệp không hợp lệ.', 'error');
       return false;
@@ -1394,6 +1642,7 @@ function validateStep(step) {
     const workingTime = document.getElementById('workingTime').value;
     const isParttimeUnder1M = (workingType === 'Parttime' && workingTime === 'Dưới 1 tháng');
 
+    // 1. Ảnh thẻ và CCCD: Luôn bắt buộc
     if (!APP_STATE.uploadedFilesData['Anh_the']) {
       showToast(isEn ? 'Portrait photo is mandatory for all applicants.' : 'Bạn chưa tải hồ sơ: Ảnh thẻ chân dung (Bắt buộc với tất cả nhân sự).', 'error');
       return false;
@@ -1404,20 +1653,22 @@ function validateStep(step) {
       return false;
     }
 
+    // 2. Với nhân viên chính thức/dài hạn: SYLL, VNeID, Bằng cấp (ĐÃ BỎ BẮT BUỘC GIẤY KSK)
     if (!isParttimeUnder1M) {
       const reqs = [
         { type: 'SYLL', name: isEn ? 'Curriculum Vitae (SYLL)' : 'Sơ yếu lý lịch' },
-        { type: 'Giay_kham_suc_khoe', name: isEn ? 'Health Certificate' : 'Giấy khám sức khỏe' },
         { type: 'Xac_thuc_cu_tru_VNEID', name: isEn ? 'VNeID Residence Verification' : 'Xác thực cư trú VNeID' },
         { type: 'Bang_cap', name: isEn ? 'Degrees & Credentials' : 'Bằng cấp chuyên môn' }
       ];
-      for (var i = 0; i < reqs.length; i++) {
+      for (let i = 0; i < reqs.length; i++) {
         if (!APP_STATE.uploadedFilesData[reqs[i].type]) {
           showToast((isEn ? 'Missing mandatory document: ' : 'Bạn chưa tải hồ sơ bắt buộc: ') + reqs[i].name, 'error');
           return false;
         }
       }
     }
+
+    // Chú ý: Các hồ sơ của Momora (CCHN, Xác nhận kết thúc hành nghề) và Giấy khám sức khỏe đều KHÔNG BẮT BUỘC nên không cần chặn tại đây.
     return true;
   }
 
@@ -1442,8 +1693,24 @@ function renderReviewData() {
   const container = document.getElementById('reviewContainer');
   const payload = collectFormData();
   const isEn = (APP_STATE.lang === 'en');
+  const conf = COMPANY_CONFIG[APP_STATE.selectedCompany] || COMPANY_CONFIG['edufit'];
+  const compName = isEn ? conf.nameEn : conf.nameVi;
 
   container.innerHTML = `
+    <!-- 0: Công ty đã chọn -->
+    <div class="review-section">
+      <div class="review-header">
+        <h4>🏢 ${isEn ? 'Target Company / Entity' : 'Đơn vị / Doanh nghiệp tiếp nhận'}</h4>
+        <button type="button" class="btn-edit-jump" onclick="goToStep(0)">${isEn ? 'Change' : 'Thay đổi'}</button>
+      </div>
+      <div class="review-body">
+        <div class="review-item col-span-2">
+          <span class="review-label">${isEn ? 'Company' : 'Công ty trực thuộc'}</span>
+          <span class="review-value" style="color: var(--primary); font-size: 15px;"><strong>${compName}</strong></span>
+        </div>
+      </div>
+    </div>
+
     <!-- 1: Cá nhân -->
     <div class="review-section">
       <div class="review-header">
@@ -1508,13 +1775,29 @@ function renderReviewData() {
         <div class="review-item col-span-2">
           <span class="review-value">
             ${Object.keys(APP_STATE.uploadedFilesData).length > 0 
-              ? Object.values(APP_STATE.uploadedFilesData).map(f => `📄 ${f.docType}: <strong>${f.originalName}</strong> (${f.fileSize})`).join('<br>')
+              ? Object.values(APP_STATE.uploadedFilesData).map(f => `📄 ${getDocTypeFriendlyName(f.docType)}: <strong>${f.originalName}</strong> (${f.fileSize})`).join('<br>')
               : (isEn ? 'No files attached' : 'Chưa có hồ sơ nào được tải lên.')}
           </span>
         </div>
       </div>
     </div>
   `;
+}
+
+function getDocTypeFriendlyName(docType) {
+  const isEn = (APP_STATE.lang === 'en');
+  const dict = I18N_DICT[APP_STATE.lang] || I18N_DICT['vi'];
+  const map = {
+    'Anh_the': dict.doc_photo_title,
+    'CCCD': dict.doc_cccd_title,
+    'SYLL': dict.doc_syll_title,
+    'Giay_kham_suc_khoe': dict.doc_health_title,
+    'Xac_thuc_cu_tru_VNEID': dict.doc_vneid_title,
+    'Bang_cap': dict.doc_degree_title,
+    'Chung_chi_hanh_nghe': dict.doc_momora_cchn_title,
+    'Xac_nhan_ket_thuc_hanh_nghe': dict.doc_momora_exit_title
+  };
+  return map[docType] || docType;
 }
 
 // ========================================================================
@@ -1584,7 +1867,7 @@ async function proceedFinalSubmit() {
 }
 
 // ========================================================================
-// COLLECT FORM DATA (MAPPED TO 45 COLUMNS A:AS)
+// COLLECT FORM DATA (MAPPED TO 45 COLUMNS + COMPANY TAG)
 // ========================================================================
 function collectFormData() {
   let finalGender = document.getElementById('gender').value;
@@ -1694,8 +1977,12 @@ function collectFormData() {
   };
 
   const uploadedFiles = Object.values(APP_STATE.uploadedFilesData);
+  const currentCompanyConfig = COMPANY_CONFIG[APP_STATE.selectedCompany] || COMPANY_CONFIG['edufit'];
 
   return {
+    selectedCompany: APP_STATE.selectedCompany,
+    selectedCompanyName: currentCompanyConfig.nameVi,
+
     fullName: document.getElementById('fullName').value.trim(),
     gender: finalGender,
     dob: document.getElementById('dob').value,
@@ -1750,10 +2037,11 @@ function collectFormData() {
 // AUTO SAVE & RESTORE DRAFT
 // ========================================================================
 function saveDraftToLocalStorage() {
-  if (APP_STATE.currentStep <= 0 || APP_STATE.currentStep >= 9) return;
+  if (APP_STATE.currentStep < 0 || APP_STATE.currentStep >= 9) return;
   try {
     const draft = {
       step: APP_STATE.currentStep,
+      selectedCompany: APP_STATE.selectedCompany,
       fullName: document.getElementById('fullName').value,
       gender: document.getElementById('gender').value,
       otherGender: document.getElementById('otherGender').value,
@@ -1801,13 +2089,13 @@ function saveDraftToLocalStorage() {
       major: document.getElementById('major').value,
       gradYear: document.getElementById('gradYear').value
     };
-    localStorage.setItem('hr_onboarding_draft_v3', JSON.stringify(draft));
+    localStorage.setItem('hr_onboarding_draft_multi_v1', JSON.stringify(draft));
   } catch(e) {}
 }
 
 function checkAndPromptDraftModal() {
   try {
-    const raw = localStorage.getItem('hr_onboarding_draft_v3');
+    const raw = localStorage.getItem('hr_onboarding_draft_multi_v1');
     if (!raw) return;
     const draft = JSON.parse(raw);
     if (draft && (draft.fullName || draft.step > 0)) {
@@ -1824,6 +2112,10 @@ function applyAndResumeDraft() {
   if (!draft) {
     document.getElementById('draftModal').classList.remove('show');
     return;
+  }
+
+  if (draft.selectedCompany) {
+    selectCompany(draft.selectedCompany);
   }
 
   document.getElementById('fullName').value = draft.fullName || '';
@@ -1925,7 +2217,7 @@ function discardDraftAndStartNew() {
 
 function clearLocalStorageDraft() {
   try {
-    localStorage.removeItem('hr_onboarding_draft_v3');
+    localStorage.removeItem('hr_onboarding_draft_multi_v1');
   } catch(e) {}
 }
 
