@@ -57,7 +57,7 @@ const RELIGIONS = [
 
 let APP_STATE = {
   lang: 'vi',
-  selectedCompany: 'edufit', // 'edufit' | 'momora' | 'tomita'
+  selectedCompany: null, // 'edufit' | 'momora' | 'tomita'
   currentStep: 0,
   links: {},
   addressTree: {},
@@ -811,6 +811,17 @@ function applyCompanyBranding(companyKey) {
   }
 }
 
+function resetHeaderToDefault() {
+  const headerImg = document.getElementById('headerLogo');
+  const headerBadge = document.getElementById('headerBrandBadge');
+  if (headerImg) headerImg.style.display = 'none';
+  if (headerBadge) headerBadge.style.display = 'none';
+
+  const isEn = (APP_STATE.lang === 'en');
+  const brandSub = document.getElementById('headerBrandSubText');
+  if (brandSub) brandSub.textContent = isEn ? 'HR Onboarding Portal' : 'Cổng Kê Khai Nhân Sự';
+}
+
 function toggleMomoraSpecificFields(isMomora) {
   const momoraCards = document.querySelectorAll('.momora-extra-field');
   momoraCards.forEach(card => {
@@ -898,7 +909,11 @@ function setLanguage(lang) {
   populateCampusDropdown();
 
   // 5. Cập nhật thương hiệu hiển thị
-  applyCompanyBranding(APP_STATE.selectedCompany);
+  if (APP_STATE.selectedCompany) {
+    applyCompanyBranding(APP_STATE.selectedCompany);
+  } else {
+    resetHeaderToDefault();
+  }
 
   // 6. Cập nhật Badge trên Header
   if (APP_STATE.currentStep >= 1 && APP_STATE.currentStep <= 9) {
@@ -1075,7 +1090,7 @@ function handleDropdownWithCustom(selectElement, customGroupId) {
 // ========================================================================
 document.addEventListener('DOMContentLoaded', function() {
   setupAllAboutLogos();
-  applyCompanyBranding('edufit');
+  resetHeaderToDefault();
   setLanguage('vi');
   addExperienceRow();
   addFamilyRow();
@@ -1380,6 +1395,7 @@ function goToStep(stepIdentifier) {
     headerBadge.style.display = 'none';
     progressContainer.style.display = 'none';
     if (btnSwitchComp) btnSwitchComp.style.display = 'none';
+    resetHeaderToDefault();
   } else if (stepIndex === 10) {
     // Màn hình thành công
     headerBadge.style.display = 'none';
