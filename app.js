@@ -26,8 +26,8 @@ const COMPANY_CONFIG = {
     shortEn: 'MOMORA JSC',
     badgeText: 'MOMORA HR',
     // Dán link logo Momora vào bên dưới (nếu chưa có có thể tạm dùng logo Edufit hoặc link mới):
-    logoUrl: 'https://lh3.googleusercontent.com/d/1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V',
-    fallbackThumbnail: 'https://drive.google.com/thumbnail?id=1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V&sz=w500'
+    logoUrl: 'https://lh3.googleusercontent.com/d/1uOdpyLcZx71A8fwMYtCSNZDRhO8yi7Wp',
+    fallbackThumbnail: 'https://drive.google.com/thumbnail?id=1uOdpyLcZx71A8fwMYtCSNZDRhO8yi7Wp&sz=w500'
   },
   tomita: {
     key: 'tomita',
@@ -37,8 +37,8 @@ const COMPANY_CONFIG = {
     shortEn: 'TOMITA MART',
     badgeText: 'TOMITA HR',
     // Dán link logo Tomita vào bên dưới:
-    logoUrl: 'https://lh3.googleusercontent.com/d/1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V',
-    fallbackThumbnail: 'https://drive.google.com/thumbnail?id=1EOrZkL2UB4usQqZg1viwBUlgguX9Fj1V&sz=w500'
+    logoUrl: 'https://lh3.googleusercontent.com/d/1ad5z6PEPuDKohYmbd5txo6Yo6kz7hlY6',
+    fallbackThumbnail: 'https://drive.google.com/thumbnail?id=1ad5z6PEPuDKohYmbd5txo6Yo6kz7hlY6&sz=w500'
   }
 };
 
