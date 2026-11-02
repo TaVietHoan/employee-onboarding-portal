@@ -26,8 +26,8 @@ const COMPANY_CONFIG = {
     shortEn: 'MOMORA JSC',
     badgeText: 'MOMORA HR',
     // Dán link logo Momora vào bên dưới (nếu chưa có có thể tạm dùng logo Edufit hoặc link mới):
-    logoUrl: 'https://lh3.googleusercontent.com/d/1uOdpyLcZx71A8fwMYtCSNZDRhO8yi7Wp',
-    fallbackThumbnail: 'https://drive.google.com/thumbnail?id=1uOdpyLcZx71A8fwMYtCSNZDRhO8yi7Wp&sz=w500'
+    logoUrl: 'https://lh3.googleusercontent.com/d/1OrFFJJVqlY_XvMKneFCnHWVRgRf3yWuB',
+    fallbackThumbnail: 'https://drive.google.com/thumbnail?id=1OrFFJJVqlY_XvMKneFCnHWVRgRf3yWuB&sz=w500'
   },
   tomita: {
     key: 'tomita',
